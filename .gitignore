@@ -1,0 +1,12 @@
+/node_modules
+/build
+npm-debug.log
+.DS_Store
+.jsbeautifyrc
+.swp
+.idea
+supervisord.ini
+/logs
+run.log
+/public
+/frontend
