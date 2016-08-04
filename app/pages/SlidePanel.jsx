@@ -14,7 +14,10 @@ export default class SlidePanelPage extends React.Component {
     _onShowTop(e) {
         e.stopPropagation();
         const node = <span>上边面板</span>;
-        SlidePanelComponent.display(node, {position: 'top'});
+        SlidePanelComponent.display(node, {
+            position: 'top',
+            modal: true
+        });
     }
     _onShowBottom(e) {
         e.stopPropagation();

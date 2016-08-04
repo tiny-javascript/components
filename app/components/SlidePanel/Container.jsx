@@ -4,20 +4,21 @@ export default class SlidePanelContainer extends Component {
     state = {
         queue: [],
         options: {
-            modal: false,
+            modal: false, // 是否模态显示
             position: 'right'
-        }
+        },
+        hided: false
     }
     _showLayout(layout) {
-        const {modal, zIndex} = layout.options;
-        if (modal) {
-            this.refs.backdrop.style.display = 'block';
-        }
+        const {modal, zIndex, sync} = layout.options;
         // 隐藏上一个
         const {queue} = this.state;
         if (queue.length > 1) {
             const last = queue[queue.length - 2];
             this._hideLayout(last);
+        }
+        if (modal) {
+            this.refs.backdrop.style.display = 'block';
         }
         // 显示当前
         this.refs['layout' + zIndex].show();
