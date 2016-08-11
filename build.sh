@@ -18,4 +18,4 @@ cd ~/workspace/xiaxianlin.github.io/
 git add .
 git commit -m 'upload components'
 git push origin master
-echo 'url: http://xiaxianlin.github.io/components/index.html'
+echo 'url: http://xiaxianlin.github.io/components'
