@@ -2,6 +2,7 @@ import React from 'react';
 import SlidePanelPage from 'pages/SlidePanel';
 import ProxyMapPage from 'pages/ProxyMap';
 import PiePage from 'pages/Pie';
+import BarPage from 'pages/Bar';
 export default class IndexPage extends React.Component {
     render() {
         return (
@@ -14,6 +15,7 @@ export default class IndexPage extends React.Component {
                     </div>
                 </nav>
                 <SlidePanelPage/>
+                <BarPage/>
                 <PiePage/>
                 <ProxyMapPage/>
             </div>
