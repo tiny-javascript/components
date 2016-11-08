@@ -21,7 +21,7 @@ module.exports = {
             {
                 test: /\.js(x)*?$/,
                 loaders: [
-                    'react-hot', 'babel?presets[]=es2015&presets[]=react&presets[]=stage-1&plugins[]=transform-object-rest-spread'
+                    'react-hot', 'babel?presets[]=es2015&presets[]=react&presets[]=stage-1&plugins[]=transform-object-rest-spread&plugins[]=transform-decorators-legacy'
                 ],
                 exclude: [/node_modules/]
             }, {
