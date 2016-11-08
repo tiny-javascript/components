@@ -5,39 +5,38 @@ const Drag = {
          */
         __onDragStart(e) {
             e.target.moveToTop();
-            // 重置偏移量
-            this.state.dragOffset = {
-                x: 0,
-                y: 0
-            };
-            // 设置偏移量
-            let {x, y} = e.target.attrs;
-            if (isNaN(x)) {
-                x = this.state.x;
-                y = this.state.y;
-            }
-            this.state.dragOffset = {
-                x: e.evt.layerX - x,
-                y: e.evt.layerY - y
-            };
-            this.state.status = this.STATUS_MOVE;
-            this._onDragStart.bind(this);
+            this.setStatus(this.STATUS_MOVE);
+            this._onDragStart(e);
         },
         /**
          * 拖拽移动事件，处理图形
          */
         __onDragMove(e) {
-            const x = e.evt.layerX - this.state.dragOffset.x;
-            const y = e.evt.layerY - this.state.dragOffset.y;
-            this.setAxis(x, y, this._onDragMove.bind(this, x, y));
+            const {limitArea} = this.state;
+            let {x, y} = e.target.attrs;
+            if (limitArea) {
+                const [xMin, xMax] = limitArea.x;
+                const [yMin, yMax] = limitArea.y;
+                if (xMin && x < xMin) {
+                    x = xMin;
+                } else if (xMax && x > xMax) {
+                    x = xMax;
+                }
+                if (yMin && y < yMin) {
+                    y = yMin;
+                } else if (yMax && y > yMax) {
+                    y = yMax;
+                }
+            }
+            this.setAxis(x, y);
+            this._onDragMove(e);
         },
         /**
          * 拖拽结束事件，处理图形
          */
-        __onDragEnd() {
-            this.setState({
-                status: this.STATUS_ACTIVE
-            }, this._onDragEnd.bind(this));
+        __onDragEnd(e) {
+            this.setStatus(this.STATUS_ACTIVE);
+            this._onDragEnd(e)
         },
         /**
          * 拖拽开始事件，处理业务
