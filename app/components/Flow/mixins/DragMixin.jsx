@@ -12,23 +12,9 @@ const Drag = {
          * 拖拽移动事件，处理图形
          */
         __onDragMove(e) {
-            const {limitArea} = this.state;
-            let {x, y} = e.target.attrs;
-            if (limitArea) {
-                const [xMin, xMax] = limitArea.x;
-                const [yMin, yMax] = limitArea.y;
-                if (xMin && x < xMin) {
-                    x = xMin;
-                } else if (xMax && x > xMax) {
-                    x = xMax;
-                }
-                if (yMin && y < yMin) {
-                    y = yMin;
-                } else if (yMax && y > yMax) {
-                    y = yMax;
-                }
-            }
-            this.setAxis(x, y);
+            const {x, y} = e.target.attrs;
+            this.state.x = x;
+            this.state.y = y;
             this._onDragMove(e);
         },
         /**

@@ -15,12 +15,12 @@ export default class Task extends BasicTask {
         this.state.cornerRadius = 0;
     }
     render() {
-        const {width, height, backgroundColor, cornerRadius} = this.state;
-        const {draggable} = this.state;
+        const {width, height, draggable} = this.state;
+        const {backgroundColor, cornerRadius} = this.state;
         const events = this._getEvents();
         const containerProps = this._getContainerProps();
         return (
-            <Group draggable={draggable} {...containerProps} {...events}>
+            <Group ref="container" draggable={draggable} {...containerProps} {...events}>
                 <Rect width={width} height={height} fill={backgroundColor} cornerRadius={cornerRadius}/>
                 <Group></Group>
                 {this._renderWrap()}

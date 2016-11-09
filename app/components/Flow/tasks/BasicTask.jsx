@@ -16,17 +16,18 @@ export default class BasicTask extends BasicElement {
         }
         return events;
     }
-    setStatus(status) {
-        this.setState({
-            status,
-            draggable: status != this.STATUS_RESIZE
+    _refreshPoints() {
+        const {width, height, pointRaduis} = this.state;
+        const resizePoints = this._getResizePointPosition(width, height, pointRaduis);
+        const connectorPoints = this._getConnectorPointPosition(width, height, pointRaduis);
+        resizePoints.forEach((point, index) => {
+            const ref = `rp${index}`;
+            this.refs[ref].setAxis(point.x, point.y);
         });
-    }
-    componentWillMount() {
-        super.componentWillMount();
-        this._clickEvents = this._getClickEvents();
-        this._dragEvents = this._getDragEvents();
-        this._resizeEvents = this._getResizeEvents();
+        connectorPoints.forEach((point, index) => {
+            const ref = `cp${index}`;
+            this.refs[ref].setAxis(point.x, point.y);
+        });
     }
     /**
      * 渲染基础层
@@ -41,16 +42,42 @@ export default class BasicTask extends BasicElement {
             <Group width={width} height={height}>
                 <Line x="0" y="0" points={borderPoints} stroke="red" strokeWidth="1" closed/>
                 <Group></Group>
-                {resizePoints.map((item, index) => {
-                    const {x, y, cursor} = item;
-                    const referenceIndex = index < resizePoints.length / 2 && index + 2 || index - 2;
-                    return <ResizePoint key={x + '_' + y} x={x} y={y} radius={pointRaduis} cursor={cursor} parent={this.state} {...resizeEvents}/>
+                {resizePoints.map((point, index) => {
+                    point.ref = `rp${index}`;
+                    return <ResizePoint key={index} radius={pointRaduis} {...point} {...resizeEvents}/>
                 })}
-                {connectorPoints.map(item => {
-                    const {x, y} = item;
-                    return <ConnectorPoint key={x + '_' + y} x={x} y={y} radius={pointRaduis}/>
+                <Group></Group>
+                {connectorPoints.map((point, index) => {
+                    point.ref = `cp${index}`;
+                    return <ConnectorPoint key={index} radius={pointRaduis} {...point}/>
                 })}
             </Group>
         )
+    }
+    _onDragMove(e) {
+        this.forceUpdate();
+    }
+    _onResize(e) {
+        const {pointRaduis} = this.state;
+        const rx = e.target.attrs.x;
+        const ry = e.target.attrs.y;
+        this.setState({
+            width: rx + pointRaduis,
+            height: ry + pointRaduis
+        });
+        this._refreshPoints();
+    }
+    setStatus(status) {
+        this.setState({
+            status,
+            draggable: status != this.STATUS_RESIZE
+        });
+    }
+    componentWillMount() {
+        super.componentWillMount();
+        this._clickEvents = this._getClickEvents();
+        this._dragEvents = this._getDragEvents();
+        this._resizeEvents = this._getResizeEvents();
+        this.state.minArea = 30;
     }
 }

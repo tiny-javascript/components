@@ -12,8 +12,8 @@ export default class ConnectorPoint extends BasicPoint {
         this.setCursor("crosshair");
     }
     render() {
-        const events = Object.assign({}, this._getHoverEvents());
         const {x, y, radius, borderColor} = this.state;
+        const events = Object.assign({}, this._getHoverEvents());
         return (
             <Group x={x} y={y} width={radius * 2} height={radius * 2} {...events}>
                 <Circle x={radius} y={radius} radius={radius} fill={borderColor}/>

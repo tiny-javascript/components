@@ -7,4 +7,7 @@ export default class BasicPoint extends AbstractElement {
     componentWillMount() {
         this.state.radius = this.props.radius;
     }
+    shouldComponentUpdate(props, state) {
+        return this.state != state;
+    }
 }
