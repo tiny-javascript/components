@@ -7,7 +7,7 @@ export default class FlowComponent extends Component {
         return (
             <Stage width={1108} height={500}>
                 <Layer>
-                    <SimpleTask x={125} y={100}/>
+                    <SimpleTask x={500} y={200}/>
                 </Layer>
             </Stage>
         );

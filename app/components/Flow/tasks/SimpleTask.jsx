@@ -5,8 +5,8 @@ export default class Task extends BasicTask {
     static defaultProps = {
         x: 0,
         y: 0,
-        width: 90,
-        height: 60,
+        width: 180,
+        height: 120,
         opacity: 1,
         backgroundColor: '#d5e5f7'
     }
