@@ -9,7 +9,8 @@ export default class ResizePoint extends BasicPoint {
         x: 0,
         y: 0,
         radius: 5,
-        borderColor: 'red'
+        borderColor: 'red',
+        visible: false
     }
     _onDragStart(e) {
         this.props.onResizeStart && this.props.onResizeStart(e);
@@ -24,37 +25,13 @@ export default class ResizePoint extends BasicPoint {
     _onMouseEnter(e) {
         this.setCursor(this.props.cursor);
     }
-    _getDragRange(cursor, parent) {
-        const {minArea} = this.state;
-        const limitX = parent.width - minArea;
-        const limitY = parent.height - minArea;
-        const area = {};
-        switch (cursor) {
-            case 'nw-resize': //左上
-                area.x = [null, limitX];
-                area.y = [null, limitY];
-                break;
-            case 'ne-resize': //右上
-                area.x = [minArea, null];
-                area.y = [null, limitY];
-                break;
-            case 'sw-resize': //左下
-                area.x = [null, limitX];
-                area.y = [minArea, null];
-                break;
-            case 'se-resize': //右下
-                area.x = [minArea, null];
-                area.y = [minArea, null];
-                break;
-        }
-        return area;
-    }
     render() {
         const events = Object.assign({}, this._getHoverEvents(), this._getDragEvents());
-        const {x, y, radius, borderColor, draggable} = this.state;
+        const {x, y, radius, borderColor} = this.state;
+        const {draggable, visible} = this.state;
         const points = this._getRectBorderPoints(radius * 2, radius * 2);
         return (
-            <Group draggable={draggable} x={x} y={y} {...events}>
+            <Group draggable={draggable} visible={visible} x={x} y={y} {...events}>
                 <Line points={points} stroke={borderColor} strokeWidth="1" fill="white" closed/>
             </Group>
         );

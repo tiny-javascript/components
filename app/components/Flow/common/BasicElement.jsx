@@ -1,18 +1,6 @@
 import React from 'react';
 import AbstractElement from './AbstractElement';
 export default class BasicElement extends AbstractElement {
-    /*默认状态*/
-    STATUS_DEFAULT = 0
-    /*活动状态*/
-    STATUS_ACTIVE = 1
-    /*移动状态*/
-    STATUS_MOVE = 2
-    /*变形状态*/
-    STATUS_RESIZE = 3
-    /*悬浮状态*/
-    STATUS_HOVER = 4
-    /*禁用状态*/
-    STATUS_DISABLE = 5
     /**
      * 获取容器属性
      */
@@ -87,6 +75,8 @@ export default class BasicElement extends AbstractElement {
         return [topLeft, topRight, bottomRight, bottomLeft];
     }
     componentWillMount() {
+        super.componentWillMount();
+        this.state.status = this._STATUS_DEFAULT_;
         this.state.pointRaduis = 4;
     }
 }

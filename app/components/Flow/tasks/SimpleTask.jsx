@@ -7,7 +7,6 @@ export default class Task extends BasicTask {
         y: 0,
         width: 180,
         height: 120,
-        opacity: 1,
         backgroundColor: '#d5e5f7'
     }
     componentWillMount() {
@@ -17,7 +16,7 @@ export default class Task extends BasicTask {
     render() {
         const {width, height, draggable} = this.state;
         const {backgroundColor, cornerRadius} = this.state;
-        const events = this._getEvents();
+        const events = Object.assign({}, this._clickEvents, this._dragEvents, this._hoverEvents);
         const containerProps = this._getContainerProps();
         return (
             <Group ref="container" draggable={draggable} {...containerProps} {...events}>

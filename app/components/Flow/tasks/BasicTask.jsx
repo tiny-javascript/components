@@ -7,15 +7,45 @@ import mixin from 'decorators/mixin';
 import DragMixin from '../mixins/DragMixin';
 import ClickMixin from '../mixins/ClickMixin';
 import ResizeMixin from '../mixins/ResizeMixin';
-@mixin(DragMixin, ClickMixin, ResizeMixin)
+import HoverMixin from '../mixins/HoverMixin';
+@mixin(DragMixin, ClickMixin, ResizeMixin, HoverMixin)
 export default class BasicTask extends BasicElement {
-    _getEvents() {
-        let events = Object.assign({}, this._clickEvents);
-        if (this.state.draggable) {
-            events = Object.assign(events, this._dragEvents);
+    /**
+     * 重写设置状态
+     */
+    _handleStatus(status) {
+        // 处理透明度
+        this.state.opacity = status != this._STATUS_MOVE_ && 1 || 0.5;
+        // 处理边框显示
+        this.state.borderVisible = status != this._STATUS_DEFAULT_;
+        // 处理point显示
+        if (status == this._STATUS_DEFAULT_) {
+            this._setPointsVisible(false);
+        } else {
+            this._setPointsVisible(true);
         }
-        return events;
     }
+    /**
+     * 设置point透明度
+     */
+    _setPointsVisible(visible, point) {
+        for (var ref in this.refs) {
+            if (this.refs.hasOwnProperty(ref)) {
+                if (point) {
+                    if (ref.indexOf(point) !== -1) {
+                        this.refs[ref].setVisible(visible);
+                    }
+                } else {
+                    if (ref.indexOf('rp') !== -1 || ref.indexOf('cp') !== -1) {
+                        this.refs[ref].setVisible(visible);
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * 刷新所有的point
+     */
     _refreshPoints() {
         const {width, height, pointRaduis} = this.state;
         const resizePoints = this._getResizePointPosition(width, height, pointRaduis);
@@ -34,39 +64,42 @@ export default class BasicTask extends BasicElement {
      */
     _renderWrap() {
         const {width, height, pointRaduis} = this.state;
+        const {borderVisible, resizePointVisible, connectorPointVisible} = this.state;
         const borderPoints = this._getRectBorderPoints(width, height);
         const resizePoints = this._getResizePointPosition(width, height, pointRaduis);
         const connectorPoints = this._getConnectorPointPosition(width, height, pointRaduis);
         const resizeEvents = this._resizeEvents;
         return (
             <Group width={width} height={height}>
-                <Line x="0" y="0" points={borderPoints} stroke="red" strokeWidth="1" closed/>
+                <Line visible={borderVisible} x="0" y="0" points={borderPoints} stroke="red" strokeWidth="1" closed/>
                 <Group></Group>
                 {resizePoints.map((point, index) => {
                     point.ref = `rp${index}`;
-                    return <ResizePoint key={index} radius={pointRaduis} {...point} {...resizeEvents}/>
+                    return <ResizePoint visible={resizePointVisible} key={index} radius={pointRaduis} {...point} {...resizeEvents}/>
                 })}
                 <Group></Group>
                 {connectorPoints.map((point, index) => {
                     point.ref = `cp${index}`;
-                    return <ConnectorPoint key={index} radius={pointRaduis} {...point}/>
+                    return <ConnectorPoint visible={connectorPointVisible} key={index} radius={pointRaduis} {...point}/>
                 })}
             </Group>
         )
     }
-    _cache(x, y, w, h) {
-        this._cacheX = x;
-        this._cacheY = y;
-        this._cacheWidth = w;
-        this._cacheHeight = h;
-    }
-    _onDragMove(e) {
-        this.forceUpdate();
-    }
+    /**
+     * 变形开始
+     */
     _onResizeStart() {
-        const {x, y, width, height} = this.state;
-        this._cache(x, y, width, height);
+        this.state.draggable = false;
     }
+    /**
+     * 变形结束
+     */
+    _onResizeEnd() {
+        this.state.draggable = true;
+    }
+    /**
+     * 变形中
+     */
     _onResize(e) {
         const {x, y, minArea, pointRaduis} = this.state;
         const cx = this._cacheX;
@@ -115,20 +148,21 @@ export default class BasicTask extends BasicElement {
         this.setState({x: nx, y: ny, width: nw, height: nh});
         this._refreshPoints();
     }
-    _onResizeEnd() {
-        this._cache(0, 0, 0, 0);
-    }
-    setStatus(status) {
-        this.setState({
-            status,
-            draggable: status != this.STATUS_RESIZE
-        });
-    }
     componentWillMount() {
         super.componentWillMount();
         this._clickEvents = this._getClickEvents();
         this._dragEvents = this._getDragEvents();
         this._resizeEvents = this._getResizeEvents();
+        this._hoverEvents = this._getHoverEvents();
+        // 最小区域
         this.state.minArea = 30;
+        // 边框可见
+        this.state.borderVisible = false;
+        // 变形点可见
+        this.state.resizePointVisible = false;
+        // 连接点可见
+        this.state.connectorPointVisible = false;
+        // 初始化状态池
+        this._statusPool.push(this._STATUS_DEFAULT_);
     }
 }
