@@ -8,6 +8,7 @@ export default class EndEvent extends BasicEvent {
         radius: 30
     }
     componentWillMount() {
-        this.state.background = 'rgb(255,0,0)';
+        super.componentWillMount();
+        this.state.backgroundColor = 'rgb(255,0,0)';
     }
 }

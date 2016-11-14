@@ -10,6 +10,8 @@ const Resize = {
             this._cacheHeight = h;
         },
         __onResizeStart(e) {
+            this.refs.container.moveToTop();
+            this.state.draggable = false;
             const {x, y, width, height} = this.state;
             this.__cache(x, y, width, height);
             this._onResizeStart(e);
@@ -19,6 +21,7 @@ const Resize = {
             this._onResize(e);
         },
         __onResizeEnd(e) {
+            this.state.draggable = true;
             this.__cache(0, 0, 0, 0);
             this._onResizeEnd(e)
             this.setStatus(this._STATUS_ACTIVE_);

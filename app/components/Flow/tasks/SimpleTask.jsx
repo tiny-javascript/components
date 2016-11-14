@@ -5,8 +5,8 @@ export default class Task extends BasicTask {
     static defaultProps = {
         x: 0,
         y: 0,
-        width: 180,
-        height: 120,
+        width: 90,
+        height: 60,
         backgroundColor: '#d5e5f7'
     }
     componentWillMount() {
@@ -19,10 +19,9 @@ export default class Task extends BasicTask {
         const events = Object.assign({}, this._clickEvents, this._dragEvents, this._hoverEvents);
         const containerProps = this._getContainerProps();
         return (
-            <Group ref="container" draggable={draggable} {...containerProps} {...events}>
-                <Rect width={width} height={height} fill={backgroundColor} cornerRadius={cornerRadius}/>
-                <Group></Group>
-                {this._renderWrap()}
+            <Group {...containerProps} {...events}>
+                <Rect width={width} height={height} fill={backgroundColor} cornerRadius={cornerRadius}></Rect>
+                {this._renderBackground()}
             </Group>
         )
     }

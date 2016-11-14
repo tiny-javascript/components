@@ -8,6 +8,7 @@ export default class StartEvent extends BasicEvent {
         radius: 30
     }
     componentWillMount() {
-        this.state.background = '#66c484';
+        super.componentWillMount();
+        this.state.backgroundColor = '#66c484';
     }
 }

@@ -1,9 +1,9 @@
 import React from 'react';
-import SlidePanelPage from 'pages/SlidePanel';
-import ProxyMapPage from 'pages/ProxyMap';
-import PiePage from 'pages/Pie';
-import BarPage from 'pages/Bar';
-import FlowPage from 'pages/Flow';
+import SlidePanelPage from 'pages/index/SlidePanel';
+import ProxyMapPage from 'pages/index/ProxyMap';
+import PiePage from 'pages/index/Pie';
+import BarPage from 'pages/index/Bar';
+import FlowPage from 'pages/index/Flow';
 export default class IndexPage extends React.Component {
     render() {
         return (

@@ -34,7 +34,9 @@ const Drag = {
          * 拖拽开始事件，处理业务
          * @desc 需要重写
          */
-        _onDragStart() {},
+        _onDragStart() {
+            this.setCursor('move');
+        },
         /**
          * 拖拽移动事件，处理业务
          * @desc 需要重写

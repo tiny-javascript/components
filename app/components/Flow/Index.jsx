@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Stage, Layer} from 'react-konva';
 import SimpleTask from './tasks/SimpleTask';
+import StartEvent from './events/StartEvent';
 import EventContainer from './common/EventContainer';
 import './index.css';
 export default class FlowComponent extends Component {
@@ -27,7 +28,8 @@ export default class FlowComponent extends Component {
             <div id="flowContainer" className="flow-container">
                 <Stage width={1108} height={500} onclick={this._onCanvasClick.bind(this)} oncontentclick={this._onCanvasContentClick.bind(this)}>
                     <Layer>
-                        <SimpleTask x={450} y={150}/>
+                        <StartEvent x={500} y={150} radius={75}/>
+                        <SimpleTask x={300} y={300}/>
                     </Layer>
                 </Stage>
             </div>

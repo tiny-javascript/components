@@ -36,6 +36,28 @@ export default class AbstractElement extends React.Component {
         this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
     }
     /**
+     * 获取容器属性
+     */
+    _getContainerProps() {
+        const {
+            x,
+            y,
+            width,
+            height,
+            opacity,
+            draggable
+        } = this.state;
+        return {
+            x,
+            y,
+            width,
+            height,
+            opacity,
+            draggable,
+            ref: "container"
+        };
+    }
+    /**
      * 获取矩形边框坐标
      */
     _getRectBorderPoints(width, height) {
