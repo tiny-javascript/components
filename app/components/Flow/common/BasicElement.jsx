@@ -11,6 +11,13 @@ import HoverMixin from '../mixins/HoverMixin';
 @mixin(DragMixin, ClickMixin, ResizeMixin, HoverMixin)
 export default class BasicElement extends AbstractElement {
     /**
+     * 开始变形时记录4个变形点的坐标
+     */
+    _onResizeStart() {
+        const {x, y, width, height} = this.state;
+        this._spins = this._getSpins(x, y, width, height);
+    }
+    /**
      * 重写设置状态
      */
     _handleStatus(status) {
