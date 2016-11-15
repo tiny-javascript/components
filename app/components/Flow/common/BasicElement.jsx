@@ -52,8 +52,8 @@ export default class BasicElement extends AbstractElement {
     /**
      * 获取连接点坐标
      */
-    _getConnectorPointPosition(width, height, pointRaduis) {
-        var borderWidth = 1;
+    _getConnectorPointPosition() {
+        const {width, height, pointRaduis, borderWidth, connectable} = this.state;
         const top = {
             x: width / 2 - pointRaduis - borderWidth + 1,
             y: borderWidth / 2 - pointRaduis - 1
@@ -70,13 +70,13 @@ export default class BasicElement extends AbstractElement {
             x: borderWidth / 2 - pointRaduis - 1,
             y: height / 2 - pointRaduis - borderWidth
         };
-        return [top, right, bottom, left];
+        return connectable && [top, right, bottom, left] || [];
     }
     /**
      * 获取变形点坐标
      */
-    _getResizePointPosition(width, height, pointRaduis) {
-        var borderWidth = 1;
+    _getResizePointPosition() {
+        const {width, height, pointRaduis, borderWidth, resizable} = this.state;
         const topLeft = {
             x: borderWidth - pointRaduis - 1,
             y: borderWidth - pointRaduis - 1,
@@ -97,7 +97,7 @@ export default class BasicElement extends AbstractElement {
             y: height - pointRaduis - borderWidth + 1,
             cursor: 'se-resize'
         };
-        return [topLeft, topRight, bottomRight, bottomLeft];
+        return resizable && [topLeft, topRight, bottomRight, bottomLeft] || [];
     }
     /**
      * 设置point透明度
@@ -140,8 +140,8 @@ export default class BasicElement extends AbstractElement {
         const {width, height, pointRaduis} = this.state;
         const {borderVisible, resizePointVisible, connectorPointVisible} = this.state;
         const borderPoints = this._getRectBorderPoints(width, height);
-        const resizePoints = this._getResizePointPosition(width, height, pointRaduis);
-        const connectorPoints = this._getConnectorPointPosition(width, height, pointRaduis);
+        const resizePoints = this._getResizePointPosition();
+        const connectorPoints = this._getConnectorPointPosition();
         const resizeEvents = this._resizeEvents;
         return (
             <Group width={width} height={height}>
@@ -167,6 +167,8 @@ export default class BasicElement extends AbstractElement {
         this.state.status = this._STATUS_DEFAULT_;
         // 最小区域
         this.state.minArea = 30;
+        // 边框宽度
+        this.state.borderWidth = 1;
         // 边框可见
         this.state.borderVisible = false;
         // 变形点可见
@@ -175,6 +177,10 @@ export default class BasicElement extends AbstractElement {
         this.state.connectorPointVisible = false;
         // point半径
         this.state.pointRaduis = 4;
+        // 可变形性
+        this.state.resizable = true;
+        // 可连接性
+        this.state.connectable = true;
         // 初始化状态池
         this._statusPool.push(this._STATUS_DEFAULT_);
     }
