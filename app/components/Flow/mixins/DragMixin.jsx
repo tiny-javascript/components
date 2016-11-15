@@ -1,3 +1,4 @@
+import EventContainer from '../common/EventContainer';
 const Drag = {
     Mixin: {
         /**
@@ -7,6 +8,7 @@ const Drag = {
             if (!this.state.draggable)
                 return;
             e.target.moveToTop();
+            EventContainer.executeEvent('element.blur', [this.refs.container]);
             this._onDragStart(e);
             this.setStatus(this._STATUS_MOVE_);
         },

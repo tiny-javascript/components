@@ -1,5 +1,4 @@
 import React from 'react';
-import {Circle, Group} from 'react-konva';
 import BasicEvent from './BasicEvent';
 export default class StartEvent extends BasicEvent {
     static defaultProps = {

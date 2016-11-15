@@ -39,14 +39,8 @@ export default class AbstractElement extends React.Component {
      * 获取容器属性
      */
     _getContainerProps() {
-        const {
-            x,
-            y,
-            width,
-            height,
-            opacity,
-            draggable
-        } = this.state;
+        const {x, y, width, height, opacity} = this.state;
+        const {draggable} = this.state;
         return {
             x,
             y,
@@ -90,8 +84,13 @@ export default class AbstractElement extends React.Component {
      * @desc 需要被重写
      */
     _handleStatus() {}
-    _onBlur() {
-        this.setStatus(this._STATUS_DEFAULT_);
+    /**
+     * 失焦事件
+     */
+    _onBlur(container) {
+        if (this.refs.container != container) {
+            this.setStatus(this._STATUS_DEFAULT_);
+        }
     }
     /**
      * 设置状态

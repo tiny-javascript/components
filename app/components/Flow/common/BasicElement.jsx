@@ -55,7 +55,7 @@ export default class BasicElement extends AbstractElement {
     _getConnectorPointPosition(width, height, pointRaduis) {
         var borderWidth = 1;
         const top = {
-            x: width / 2 - pointRaduis - borderWidth,
+            x: width / 2 - pointRaduis - borderWidth + 1,
             y: borderWidth / 2 - pointRaduis - 1
         };
         const right = {
@@ -63,7 +63,7 @@ export default class BasicElement extends AbstractElement {
             y: height / 2 - pointRaduis - borderWidth
         };
         const bottom = {
-            x: width / 2 - pointRaduis - borderWidth,
+            x: width / 2 - pointRaduis - borderWidth + 1,
             y: height - pointRaduis - borderWidth / 2 + 1
         };
         const left = {

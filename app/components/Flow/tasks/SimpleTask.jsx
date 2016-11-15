@@ -7,11 +7,11 @@ export default class Task extends BasicTask {
         y: 0,
         width: 90,
         height: 60,
-        backgroundColor: '#d5e5f7'
+        backgroundColor: '#185ebd'
     }
     componentWillMount() {
         super.componentWillMount();
-        this.state.cornerRadius = 0;
+        this.state.cornerRadius = 5;
     }
     render() {
         const {width, height, draggable} = this.state;
