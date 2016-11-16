@@ -1,9 +1,6 @@
 import React from 'react';
 import {Line, Group} from 'react-konva';
 import BasicPoint from './BasicPoint';
-import mixin from 'decorators/mixin';
-import DragMixin from '../mixins/DragMixin';
-@mixin(DragMixin)
 export default class ResizePoint extends BasicPoint {
     static defaultProps = {
         x: 0,
@@ -26,7 +23,7 @@ export default class ResizePoint extends BasicPoint {
         this.setCursor(this.props.cursor);
     }
     render() {
-        const events = Object.assign({}, this._getHoverEvents(), this._getDragEvents());
+        const events = Object.assign({}, this._dragEvents, this._hoverEvents);
         const {x, y, radius, borderColor} = this.state;
         const {draggable, visible} = this.state;
         const points = this._getRectBorderPoints(radius * 2, radius * 2);

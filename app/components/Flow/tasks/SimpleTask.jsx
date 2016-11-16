@@ -7,7 +7,7 @@ export default class Task extends BasicTask {
         y: 0,
         width: 90,
         height: 60,
-        backgroundColor: '#185ebd'
+        backgroundColor: '#009ef1'
     }
     componentWillMount() {
         super.componentWillMount();

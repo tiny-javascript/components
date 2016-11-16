@@ -14,8 +14,6 @@ const EventContainer = {
                 const {source, func} = item;
                 if (func) {
                     source[func] && source[func](...args);
-                } else {
-                    source._listener && source._listener(...args);
                 }
             })
         }

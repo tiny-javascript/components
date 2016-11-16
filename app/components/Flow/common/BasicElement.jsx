@@ -8,7 +8,8 @@ import DragMixin from '../mixins/DragMixin';
 import ClickMixin from '../mixins/ClickMixin';
 import ResizeMixin from '../mixins/ResizeMixin';
 import HoverMixin from '../mixins/HoverMixin';
-@mixin(DragMixin, ClickMixin, ResizeMixin, HoverMixin)
+import ConnectMixin from '../mixins/ConnectMixin';
+@mixin(DragMixin, ClickMixin, ResizeMixin, HoverMixin, ConnectMixin)
 export default class BasicElement extends AbstractElement {
     /**
      * 开始变形时记录4个变形点的坐标
@@ -143,6 +144,7 @@ export default class BasicElement extends AbstractElement {
         const resizePoints = this._getResizePointPosition();
         const connectorPoints = this._getConnectorPointPosition();
         const resizeEvents = this._resizeEvents;
+        const connectEvents = this._connectEvents;
         return (
             <Group width={width} height={height}>
                 <Line visible={borderVisible} x="0" y="0" points={borderPoints} stroke="red" strokeWidth="1" closed></Line>
@@ -152,7 +154,7 @@ export default class BasicElement extends AbstractElement {
                 })}
                 {connectorPoints.map((point, index) => {
                     point.ref = `cp${index}`;
-                    return <ConnectorPoint visible={connectorPointVisible} key={index} radius={pointRaduis} {...point}/>
+                    return <ConnectorPoint visible={connectorPointVisible} key={index} radius={pointRaduis} {...point} {...connectEvents}/>
                 })}
             </Group>
         )
@@ -163,6 +165,7 @@ export default class BasicElement extends AbstractElement {
         this._dragEvents = this._getDragEvents();
         this._resizeEvents = this._getResizeEvents();
         this._hoverEvents = this._getHoverEvents();
+        this._connectEvents = this._getConnectEvents();
         // 设置初始状态
         this.state.status = this._STATUS_DEFAULT_;
         // 最小区域

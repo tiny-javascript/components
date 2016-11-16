@@ -29,7 +29,8 @@ export default class AbstractElement extends React.Component {
         draggable: true,
         opacity: 1,
         borderColor: this.props.borderColor,
-        backgroundColor: this.props.backgroundColor
+        backgroundColor: this.props.backgroundColor,
+        uniqKey: this.props.uniqKey
     }
     constructor(props) {
         super(props);
