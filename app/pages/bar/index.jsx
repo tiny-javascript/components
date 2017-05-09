@@ -1,6 +1,6 @@
 import React from 'react';
 import BarComponent from 'components/Bar/Index';
-export default class BarPage extends React.Component {
+export default class Bar extends React.Component {
     render() {
         const data = [
             {

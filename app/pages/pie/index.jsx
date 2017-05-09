@@ -1,6 +1,6 @@
 import React from 'react';
 import PieComponent from 'components/Pie/Index';
-export default class SlidePanelPage extends React.Component {
+export default class Pie extends React.Component {
     render() {
         var data = [
             {

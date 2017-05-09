@@ -1,9 +1,6 @@
 import React from 'react';
-import SlidePanelPage from 'pages/index/SlidePanel';
-import ProxyMapPage from 'pages/index/ProxyMap';
-import PiePage from 'pages/index/Pie';
-import BarPage from 'pages/index/Bar';
-export default class IndexPage extends React.Component {
+import Flow from '../flow/index';
+export default class Index extends React.Component {
     render() {
         return (
             <div className="container">
@@ -14,6 +11,7 @@ export default class IndexPage extends React.Component {
                         </div>
                     </div>
                 </nav>
+                <Flow/>
             </div>
         );
     }

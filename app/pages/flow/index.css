@@ -1,0 +1,21 @@
+polygon {
+    fill: gray;
+}
+
+text {
+    font-size: 12px;
+    text-anchor: middle;
+}
+
+#text {
+    font-size: 12px;
+    position: fixed;
+    left: -1000px;
+    visibility: hidden;
+}
+
+.svg-wrap {
+    background: rgba(0, 0, 0, 0.1);
+    background-image: linear-gradient(white 1px, transparent 0px), linear-gradient(90deg, white 1px, transparent 0px);
+    background-size: 10px 10px;
+}
