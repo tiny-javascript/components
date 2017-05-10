@@ -11,7 +11,12 @@ export default class Index extends React.Component {
                         </div>
                     </div>
                 </nav>
-                <Flow/>
+                <div className="panel panel-primary">
+                    <div className="panel-heading">FlowSVG</div>
+                    <div className="panel-body">
+                        <Flow/>
+                    </div>
+                </div>
             </div>
         );
     }

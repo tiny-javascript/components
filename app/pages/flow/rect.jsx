@@ -1,5 +1,14 @@
 import React from 'react';
-export default class Rect extends React.Component {
+import Shape from './shape';
+import {createRect} from './util';
+const status = {
+    isDrag: false
+}
+let mouseOffset = {
+    x: 0,
+    y: 0
+}
+export default class Rect extends Shape {
     static defaultProps = {
         x: 100,
         y: 100,
@@ -14,27 +23,38 @@ export default class Rect extends React.Component {
             rx: 3,
             ry: 3,
             width: width,
-            height: height,
-            fill: '#fff',
-            stroke: '#000',
-            strokeWidth: 1
+            height: height
         }
+    }
+    _getTextWidth(text) {
+        const node = document.getElementById('text');
+        node.innerHTML = text;
+        return node.offsetWidth;
+    }
+    _getActualWidth() {
+        const {width} = this.props;
+        const textWidth = this._getTextWidth(this.state.text);
+        return textWidth > width && textWidth || width;
+    }
+    setText(name) {
+        this.setState({text: name, width: this._getActualWidth()});
     }
     componentWillMount() {
-        this._textNode = document.getElementById('text');
+        super.componentWillMount();
+        this.state.text = this.props.text;
+        this.state.width = this._getActualWidth();
     }
     render() {
-        const {x, y, width, height, text} = this.props;
-        this._textNode.innerHTML = text;
-        const realWidth = (this._textNode.offsetWidth > width && this._textNode.offsetWidth || width) + 20;
-        const rectAttributes = this._getRectAttributes(realWidth, height);
+        const {x, y, width, height, text} = this.state;
+        const events = Object.assign({}, this.events.drag, this.events.click);
         const textAttributes = {
-            x: realWidth / 2,
+            x: (width + 20) / 2,
             y: height / 2 + 6
         }
+        const path = createRect(width + 20, height, 4);
         return (
-            <g transform={"translate(" + x + "," + y + ")"}>
-                <rect {...rectAttributes}></rect>
+            <g className="node-item" transform={"translate(" + x + "," + y + ")"} filter="url(#drop-shadow)" {...events}>
+                <path d={path}/>
                 <text {...textAttributes}>{text}</text>
             </g>
         )

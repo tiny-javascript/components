@@ -7,6 +7,10 @@ text {
     text-anchor: middle;
 }
 
+svg, svg * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
 #text {
     font-size: 12px;
     position: fixed;
@@ -15,7 +19,50 @@ text {
 }
 
 .svg-wrap {
+    position: relative;
     background: rgba(0, 0, 0, 0.1);
-    background-image: linear-gradient(white 1px, transparent 0px), linear-gradient(90deg, white 1px, transparent 0px);
-    background-size: 10px 10px;
+    /*background-image: linear-gradient(white 1px, transparent 0px), linear-gradient(90deg, white 1px, transparent 0px);
+    background-size: 10px 10px;*/
+}
+
+.node-item {
+    pointer-events: all;
+    cursor: move;
+    cursor: grab;
+    cursor: -webkit-grab;
+}
+
+.node-item path {
+    stroke-width: 1.1px;
+    fill: #fff;
+    stroke: #46b04a;
+}
+
+.node-item text {
+    fill: #46b04a;
+}
+
+.node-item:hover path {
+    fill: #e2f0ff;
+    stroke: #e2f0ff;
+}
+
+.node-item:hover text {
+    fill: #167be0;
+}
+
+.content {
+    position: relative;
+}
+
+.form {
+    width: 300px;
+    height: 300px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px 1px rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 100px;
+    right: 0;
 }
