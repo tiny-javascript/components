@@ -19,7 +19,8 @@
     "react": "^15.2.1",
     "react-dom": "^15.2.1",
     "react-konva": "^1.0.6",
-    "react-router": "^2.6.0"
+    "react-router": "^2.6.0",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "babel": "^6.5.2",

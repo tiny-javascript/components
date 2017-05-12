@@ -1,0 +1,11 @@
+export const LAYOUT_WIDTH = 1108;
+export const LAYOUT_HEIGHT = 500;
+export const SHAPE_WIDTH = 100;
+export const SHAPE_HEIGHT = 48;
+export const CIRCLE_RADIUS = 24;
+export const RECT_BORDER_RADIUS = 3;
+export const SHAPE_RECT = 'rect';
+export const SHAPE_CIRCLE = 'circle';
+export const COLOR_FILL = '#0083ce';
+export const COLOR_STROKE = '#fff';
+export const STROKE_WIDTH = 1;
