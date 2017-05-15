@@ -7,8 +7,13 @@ text {
     text-anchor: middle;
 }
 
-svg, svg * {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+svg.edit {
+    cursor: grab;
+    cursor: -webkit-grab;
+}
+
+svg.link, svg.link * {
+    cursor: crosshair !important;
 }
 
 #text {
@@ -20,9 +25,7 @@ svg, svg * {
 
 .shape {
     pointer-events: all;
-    cursor: move;
-    cursor: grab;
-    cursor: -webkit-grab;
+    cursor: pointer;
 }
 
 .shape circle, .shape rect {
@@ -37,6 +40,17 @@ svg, svg * {
 
 .shape.move circle, .shape.move rect {
     opacity: 0.5;
+}
+
+.tmp-line {
+    stroke: #fff;
+    stroke-width: 1px;
+    stroke-dasharray: 3;
+    opacity: 0;
+}
+
+.tmp-line.active {
+    opacity: 1;
 }
 
 .action {

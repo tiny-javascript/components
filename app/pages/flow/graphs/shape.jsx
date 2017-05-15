@@ -1,12 +1,5 @@
 import React from 'react';
 import {COLOR_FILL, COLOR_STROKE, STROKE_WIDTH} from '../constants';
-const status = {
-    move: false
-}
-const mouseOffset = {
-    x: 0,
-    y: 0
-}
 export default class Shape extends React.Component {
     state = {
         x: this.props.x,
@@ -24,28 +17,6 @@ export default class Shape extends React.Component {
     }
     _onDoubleClick() {
         console.log('double click');
-    }
-    _onMouseUp() {
-        status.move = false;
-        this.props.onMoveOver && this.props.onMoveOver();
-    }
-    _onMouseDown(e) {
-        const {x, y} = this.state;
-        mouseOffset.x = e.clientX - x;
-        mouseOffset.y = e.clientY - y;
-        status.move = true;
-        this.props.onMoveStart && this.props.onMoveStart();
-    }
-    _onMouseMove(e) {
-        if (status.move) {
-            const cx = e.clientX;
-            const cy = e.clientY;
-            this.setState({
-                x: cx - mouseOffset.x,
-                y: cy - mouseOffset.y,
-                status: 'move'
-            }, this.props.onMove);
-        }
     }
     _onMouseOver() {
         if (this.state.status == 'default') {
@@ -66,26 +37,22 @@ export default class Shape extends React.Component {
     blur() {
         this.setState({status: 'default'});
     }
+    setAxis(x, y) {
+        this.setState({x, y});
+    }
     componentWillMount() {
         this.events = {
-            mouse: {
-                onMouseDown: this._onMouseDown.bind(this),
-                onMouseMove: this._onMouseMove.bind(this),
-                onMouseUp: this._onMouseUp.bind(this),
-                onMouseOver: this._onMouseOver.bind(this),
-                onMouseOut: this._onMouseOut.bind(this)
-            },
-            click: {
-                onClick: this._onClick.bind(this),
-                onDoubleClick: this._onDoubleClick.bind(this)
-            }
+            onMouseOver: this._onMouseOver.bind(this),
+            onMouseOut: this._onMouseOut.bind(this),
+            onClick: this._onClick.bind(this),
+            onDoubleClick: this._onDoubleClick.bind(this)
         }
     }
     render() {
-        const {x, y, status} = this.state;
-        const events = Object.assign({}, this.events.click, this.events.mouse);
+        const {id, x, y, status} = this.state;
+        const events = this.events;
         return (
-            <g className={"shape " + status} transform={"translate(" + x + "," + y + ")"} {...events}>
+            <g id={id} className={"shape " + status} transform={"translate(" + x + "," + y + ")"} {...events}>
                 {this.draw()}{this.text()}
             </g>
         )

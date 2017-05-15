@@ -32,12 +32,16 @@ export default class Flow extends React.Component {
         relations.push(relation);
         this.refs.layout.addShape(shape);
     }
+    _onLink(){
+        this.refs.layout.setStatus(Layout.STATUS_LINKING);
+    }
     render() {
         const data = JSON.parse(JSON.stringify(this.state.graph));
         return (
             <div className="content">
                 <div className="action">
-                    <button className="btn btn-default btn-sm" onClick={this._onAddNode.bind(this)}>添加节点</button>
+                    <button className="btn btn-default btn-sm" onClick={this._onAddNode.bind(this)}>添加任务</button>
+                    <button className="btn btn-info btn-sm" onClick={this._onLink.bind(this)}>连接</button>
                 </div>
                 <div className="layout">
                     <Layout ref="layout" width={LAYOUT_WIDTH} height={LAYOUT_HEIGHT} data={data}/>
