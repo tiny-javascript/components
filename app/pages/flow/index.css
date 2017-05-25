@@ -12,7 +12,8 @@ svg.edit {
     cursor: -webkit-grab;
 }
 
-svg.link, svg.link * {
+svg.link,
+svg.link * {
     cursor: crosshair !important;
 }
 
@@ -24,32 +25,63 @@ svg.link, svg.link * {
 }
 
 .shape {
-    pointer-events: all;
     cursor: pointer;
 }
 
-.shape circle, .shape rect {
+.task {
     fill: #0083ce;
     stroke: #fff;
     stroke-width: 1px;
 }
 
-.shape.hover circle, .shape.hover rect, .shape.active circle, .shape.active rect {
+.task:hover,
+.task.active {
     fill: #66c484;
 }
 
-.shape.move circle, .shape.move rect {
+.task.move {
     opacity: 0.5;
 }
 
-.tmp-line {
+.line {
+    fill: none;
+    stroke: #c0c0c0;
+    stroke-width: 1px;
+}
+
+.line .bg {
+    stroke: transparent;
+    stroke-width: 10px;
+}
+
+.line:hover {
+    stroke: #9c9c9c;
+}
+
+.line.active {
+    stroke: #167be0;
+}
+
+.marker {
+    fill: #c0c0c0;
+}
+
+.marker-hover {
+    fill: #9c9c9c;
+}
+
+.marker-active {
+    fill: #167be0;
+}
+
+.auxiliary {
     stroke: #fff;
     stroke-width: 1px;
     stroke-dasharray: 3;
     opacity: 0;
 }
 
-.tmp-line.active {
+.auxiliary.active {
     opacity: 1;
 }
 
