@@ -3,13 +3,32 @@ import Rect from './graphs/rect';
 import Line from './graphs/line';
 import Circle from './graphs/circle';
 import { createReat, createCircle, createLine, translate } from './utils';
+import { setAttributes, queryInParents } from './node';
 const LAYOUT_WIDTH = 1108;
 const LAYOUT_HEIGHT = 500;
-const SHAPE_WIDTH = 100;
-const SHAPE_HEIGHT = 48;
+const SHAPE_WIDTH = 120;
+const SHAPE_HEIGHT = 60;
 const SHAPE_RECT = 'rect';
 const SHAPE_CIRCLE = 'circle';
 const SHAPE_LINE = 'line';
+const TYPE_TASK = 'task';
+const TYPE_CONDITION = 'condition';
+const TYPE_LAYOUT = 'layout';
+const TYPE_UNKNOWN = 'unknown';
+const migration = {
+    type: '',
+    target: null, // 鼠标落下的图形
+    origin: { x: 0, y: 0 }, // 初始坐标，拖动画布使用
+    begin: { x: 0, y: 0 }, // 鼠标落下的坐标
+    end: { x: 0, y: 0 }, // 鼠标起来的坐标
+    move: {  // 移动状态
+        active: false, // 移动活动状态
+        execute: false // 移动执行状态
+    },
+    link: { // 连线状态
+        active: false // 连线活动状态
+    }
+}
 export default class Layout extends React.Component {
     static STATUS_EDITING = 'edit'
     static STATUS_LINKING = 'link'
@@ -26,103 +45,92 @@ export default class Layout extends React.Component {
         active: '',
         status: Layout.STATUS_EDITING
     }
-    migration = {
-        type: '',
-        target: null, // 鼠标落下的图形
-        origin: { x: 0, y: 0 }, // 初始坐标，拖动画布使用
-        begin: { x: 0, y: 0 }, // 鼠标落下的坐标
-        end: { x: 0, y: 0 }, // 鼠标起来的坐标
-        move: {  // 移动状态
-            active: false, // 移动活动状态
-            execute: false // 移动执行状态
-        },
-        link: { // 连线状态
-            active: false // 连线活动状态
-        }
-    }
     _onMouseDown(e) {
-        const { migration } = this;
         let { x, y, status } = this.state;
-        migration.target = e.target.parentNode;
-        migration.type = e.target.tagName;
+        // 线不能移动
+        if (e.target.tagName == 'svg') {
+            migration.target = this.refs.container;
+            migration.type = TYPE_LAYOUT;
+        } else {
+            let node = queryInParents(e.target, 'task');
+            migration.target = node;
+            if (node) {
+                migration.type = node.getAttribute('class').split(' ')[1];
+            } else {
+                migration.type = TYPE_UNKNOWN;
+            }
+        }
         migration.begin.x = e.clientX;
         migration.begin.y = e.clientY;
-        if (migration.type == 'path') {
-            return;
-        }
-        if (status == Layout.STATUS_EDITING) {
-            migration.move.active = true;
-            if (migration.type == 'svg') { // 移动svg背景
-                migration.target = this.refs.container;
-                migration.origin.x = this.state.x;
-                migration.origin.y = this.state.y;
-            } else { // 移动图形
-                let transform = migration.target.getAttribute('transform').toString();
-                let axis = transform.match(/([-]?\d+)/g);
-                migration.origin.x = Number(axis[0]);
-                migration.origin.y = Number(axis[1]);
-            }
-        } else if (status == Layout.STATUS_LINKING) { // 连线状态
-            let ishover = migration.target.getAttribute('class').indexOf('shape') !== -1;
-            if (ishover) {
-                migration.link.active = true;
+        switch (status) {
+            case Layout.STATUS_EDITING:
+                migration.move.active = true;
+                if (migration.type == TYPE_LAYOUT) { // 移动svg背景
+                    migration.origin.x = this.state.x;
+                    migration.origin.y = this.state.y;
+                } else if (migration.type == TYPE_TASK) { // 移动图形
+                    let axis = migration.target.getAttribute('transform').toString().match(/([-]?\d+)/g);
+                    migration.origin.x = Number(axis[0]);
+                    migration.origin.y = Number(axis[1]);
+                }
+                break;
+            case Layout.STATUS_LINKING:
+                if (migration.type != TYPE_TASK) return;
                 let rect = this.refs.svg.getBoundingClientRect();
+                migration.link.active = true;
                 migration.origin.x = e.clientX - rect.left - x;
                 migration.origin.y = e.clientY - rect.top - y;
-                this.refs.tmpLine.setAttribute("x1", migration.origin.x);
-                this.refs.tmpLine.setAttribute("y1", migration.origin.y);
-            }
+                setAttributes(this.refs.auxiliary, { x1: migration.origin.x, y1: migration.origin.y });
+                break;
         }
     }
     _onMouseMove(e) {
-        const { migration } = this;
-        let { move, begin, target, origin, end, type } = migration;
-        let offset = {
-            x: e.clientX - begin.x,
-            y: e.clientY - begin.y
-        };
-        // 编辑状态
-        if (this.state.status == Layout.STATUS_EDITING) {
-            if (!move.active) {
-                return;
-            }
-            move.execute = true;
-            end.x = origin.x + offset.x;
-            end.y = origin.y + offset.y;
-            target.setAttribute('transform', "translate(" + end.x + "," + end.y + ")");
-            if (type == SHAPE_RECT || type == SHAPE_CIRCLE) {
-                this._handleMove(target, end);
-            }
-        } else if (this.state.status == Layout.STATUS_LINKING) { // 连线状态
-            if (!migration.link.active) {
-                return;
-            }
-            this.refs.tmpLine.setAttribute("class", "auxiliary active");
-            this.refs.tmpLine.setAttribute("x2", origin.x + offset.x + 5);
-            this.refs.tmpLine.setAttribute("y2", origin.y + offset.y + 3);
+        let { begin, target, origin, end, type } = migration;
+        if (type == TYPE_CONDITION || type == TYPE_UNKNOWN) {
+            return;
+        }
+        end.x = origin.x + e.clientX - begin.x;
+        end.y = origin.y + e.clientY - begin.y;
+        switch (this.state.status) {
+            case Layout.STATUS_EDITING:
+                if (!migration.move.active) return;
+                migration.move.execute = true;
+                setAttributes(target, { transform: "translate(" + end.x + "," + end.y + ")" });
+                if (type == TYPE_TASK) {
+                    this._handleMove(target, end);
+                }
+                break;
+            case Layout.STATUS_LINKING:
+                if (!migration.link.active) return;
+                setAttributes(this.refs.auxiliary, { class: "flow-auxiliary active", x2: end.x + 5, y2: end.y + 3 });
+                break;
         }
     }
     _onMouseUp(e) {
-        const { migration } = this;
-        if (this.state.status == Layout.STATUS_EDITING) {
-            if (migration.move.execute) {
-                if (migration.target == this.refs.container) {
+        migration.move.active = false;
+        migration.link.active = false;
+        switch (this.state.status) {
+            case Layout.STATUS_EDITING:
+                if (!migration.move.execute) return;
+                migration.move.execute = false;
+                if (migration.type == TYPE_LAYOUT) {
                     this.setState({ x: migration.end.x, y: migration.end.y });
-                } else {
+                } else if (migration.type == TYPE_TASK) {
                     let id = migration.target.getAttribute('id');
                     let shape = this.state.shapes.get(id);
-                    this.refs[id].setAxis(migration.end.x, migration.end.y);
                     shape.attrs.x = migration.end.x;
                     shape.attrs.y = migration.end.y;
+                    this.refs[id].setAxis(migration.end.x, migration.end.y);
                 }
-                migration.move.execute = false;
-            }
-            migration.move.active = false;
-        } else if (this.state.status == Layout.STATUS_LINKING) {
-            migration.link.active = false;
-            this.refs.tmpLine.setAttribute("class", "auxiliary");
-            this._link(e.target);
-            this.setState({ status: Layout.STATUS_EDITING });
+                break;
+            case Layout.STATUS_LINKING:
+                let node = queryInParents(e.target, 'task');
+                if (node) {
+                    this._link(e.target, migration.type);
+                }
+                setAttributes(this.refs.auxiliary, { class: "auxiliary" });
+                this.setState({ status: Layout.STATUS_EDITING });
+                break;
         }
     }
     _onKeyUp(e) {
@@ -136,13 +144,11 @@ export default class Layout extends React.Component {
             this.refs[this.state.active].blur();
         }
     }
-    _onShapeClick(e) {
-        e.event.stopPropagation();
-        let { active } = this.state;
-        if (active && active !== e.id) {
-            this.refs[active].blur();
+    _onShapeClick(id) {
+        if (this.state.active && this.state.active !== id) {
+            this.refs[this.state.active].blur();
         }
-        this.state.active = e.id;
+        this.state.active = id;
     }
     _clearLine(line) {
         let { shapes } = this.state;
@@ -193,10 +199,10 @@ export default class Layout extends React.Component {
             this.props.onDelete(active);
         });
     }
-    _link(target) {
+    _link(target, type) {
+        let originNode = migration.target;
         let targetNode = target.parentNode;
-        let originNode = this.migration.target;
-        if (target.tagName == SHAPE_RECT) {
+        if (type == TYPE_TASK) {
             let source = this._getLinkPoint(originNode, 'out');
             let target = this._getLinkPoint(targetNode, 'in');
             this._addLine(source, target);
@@ -271,11 +277,11 @@ export default class Layout extends React.Component {
         } || {};
         let data = translate(shapes);
         return (
-            <svg ref="svg" className={status} width={width} height={height} {...events} tabIndex="-1">
+            <svg ref="svg" className={'flow ' + status} width={width} height={height} {...events} tabIndex="-1">
                 <defs>
-                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrow" className="marker"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
-                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrowHover" className="marker-hover"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
-                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrowActive" className="marker-active"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
+                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrow" className="flow-marker"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
+                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrowHover" className="flow-marker-hover"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
+                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrowActive" className="flow-marker-active"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
                     <filter id="drop-shadow">
                         <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"></feGaussianBlur>
                         <feOffset in="blur" dx="0" dy="1" result="offsetBlur"></feOffset>
@@ -285,9 +291,9 @@ export default class Layout extends React.Component {
                         </feMerge>
                     </filter>
                 </defs>
-                <g ref="container" className="container" transform={"translate(" + x + "," + y + ")"}>
+                <g ref="container" className="flow-container" transform={"translate(" + x + "," + y + ")"}>
                     {data.map(this._renderShape.bind(this))}
-                    <line className="auxiliary" ref="tmpLine" x1="0" y1="0" x2="0" y2="0"></line>
+                    <line className="flow-auxiliary" ref="auxiliary" x1="0" y1="0" x2="0" y2="0"></line>
                 </g>
             </svg>
         )

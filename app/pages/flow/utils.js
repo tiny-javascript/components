@@ -44,6 +44,7 @@ function createCircle(x, y, id) {
             r: SHAPE_HEIGHT / 2,
             width: SHAPE_HEIGHT,
             height: SHAPE_HEIGHT,
+            text: '开始'
         }
     }
 }
@@ -67,6 +68,7 @@ function createLine(source, target) {
         }
     }
 }
+
 
 /**
  * 将map转换成数组
@@ -99,8 +101,8 @@ function createLinePath(x1, y1, x2, y2) {
     let corners = getCorners(radius);
     let points = ['M' + x1 + ',' + y1];
     points.push('H' + (x1 > x2 && (x1 + gap) || (x1 + (x2 - x1) / 2)));
-    points.push(pos == 1 && corners.up.bottom.right || corners.down.top.right);
     if (x1 > x2) { // 终点在左边
+        points.push(pos == 1 && corners.up.bottom.right || corners.down.top.right);
         if (y1 >= y2) { // 在上边
             if (y1 - y2 >= SHAPE_HEIGHT + gap) {  // 线从中间过
                 points.push('V' + (y1 + (y2 - y1) / 2));
@@ -136,6 +138,7 @@ function createLinePath(x1, y1, x2, y2) {
         }
     } else if (x1 < x2) { // 终点在右边
         if (y1 != y2) {
+            points.push(pos == 1 && corners.up.bottom.right || corners.down.top.right);
             points.push('V' + (y2 + radius * pos));
             points.push(pos == 1 && corners.up.top.left || corners.down.bottom.left);
         }
@@ -189,6 +192,5 @@ function getCorners(radius) {
         }
     }
 }
-
 
 export { createReat, createCircle, createLine, createLinePath, translate };

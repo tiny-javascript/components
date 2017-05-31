@@ -5,7 +5,8 @@ export default class Shape extends React.Component {
         y: 0,
         id: '',
         width: 100,
-        height: 48
+        height: 48,
+        text: 'Task'
     }
     state = {
         x: this.props.x,
@@ -13,15 +14,14 @@ export default class Shape extends React.Component {
         id: this.props.id,
         width: this.props.width,
         height: this.props.height,
+        text: this.props.text,
         status: 'default'
     }
     events = {}
-    _onClick(event) {
+    _onClick(e) {
+        e.stopPropagation();
         this.setState({ status: 'active' });
-        this.props.onClick && this.props.onClick({ event, id: this.state.id });
-    }
-    _onDoubleClick() {
-        console.log('double click');
+        this.props.onClick && this.props.onClick(this.state.id);
     }
     _onMouseOver() {
         if (this.state.status == 'default') {
@@ -33,33 +33,40 @@ export default class Shape extends React.Component {
             this.setState({ status: 'default' });
         }
     }
-    draw() {
+    _render() {
         return null;
     }
-    text() {
+    _renderText() {
+        const { text, width, height } = this.state;
+        let x = width / 2;
+        let y = (height + 12) / 2;
+        return text && (
+            <text x={x} y={y}>{text}</text>
+        ) || null;
+    }
+    _renderOther() {
         return null;
+    }
+    render() {
+        let events = this.events;
+        let { id, x, y, status } = this.state;
+        return (
+            <g id={id} className={"flow-shape task " + status} transform={"translate(" + x + "," + y + ")"} {...events}>
+                {this._render()}{this._renderText()}{this._renderOther()}
+            </g>
+        )
+    }
+    componentWillMount() {
+        this.events = {
+            onClick: this._onClick.bind(this),
+            onMouseOut: this._onMouseOut.bind(this),
+            onMouseOver: this._onMouseOver.bind(this)
+        }
     }
     blur() {
         this.setState({ status: 'default' });
     }
     setAxis(x, y) {
         this.setState({ x, y });
-    }
-    componentWillMount() {
-        this.events = {
-            onClick: this._onClick.bind(this),
-            onMouseOut: this._onMouseOut.bind(this),
-            onMouseOver: this._onMouseOver.bind(this),
-            onDoubleClick: this._onDoubleClick.bind(this)
-        }
-    }
-    render() {
-        let events = this.events;
-        let { id, x, y, status } = this.state;
-        return (
-            <g id={id} className={"shape task " + status} transform={"translate(" + x + "," + y + ")"} {...events}>
-                {this.draw()}{this.text()}
-            </g>
-        )
     }
 }

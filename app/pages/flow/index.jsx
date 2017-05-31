@@ -23,9 +23,7 @@ export default class Flow extends React.Component {
         this.refs.layout.setStatus(Layout.STATUS_LINKING);
     }
     _onLink(id, from, to) { }
-    _onDelete(id) {
-
-    }
+    _onDelete(id) { }
     render() {
         const data = JSON.parse(JSON.stringify(this.state.graphs));
         const events = {

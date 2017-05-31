@@ -1,20 +1,100 @@
-polygon {
-    fill: gray;
-}
-
-text {
-    font-size: 12px;
-    text-anchor: middle;
-}
-
-svg.edit {
+.flow.edit {
     cursor: grab;
     cursor: -webkit-grab;
 }
 
-svg.link,
-svg.link * {
+.flow.link,
+.flow.link * {
     cursor: crosshair !important;
+}
+
+.flow text {
+    font-size: 12px;
+    text-anchor: middle;
+}
+
+.flow .flow-icon {
+    font-family: 'Glyphicons Halflings';
+}
+
+.flow .flow-marker {
+    fill: #c0c0c0;
+}
+
+.flow .flow-marker-hover {
+    fill: #9c9c9c;
+}
+
+.flow .flow-marker-active {
+    fill: #167be0;
+}
+
+.flow .flow-shape {
+    cursor: pointer;
+}
+
+.flow .flow-shape .flow-action-layout {
+    fill: rgba(0, 0, 0, 0.3);
+    stroke-width: 0;
+    transition: opacity .2s;
+    opacity: 0;
+}
+
+.flow .flow-shape:hover .flow-action-layout {
+    opacity: 1;
+}
+
+.flow .flow-shape .flow-action-layout text {
+    fill: red;
+}
+
+.flow .flow-auxiliary {
+    stroke: #fff;
+    stroke-width: 1px;
+    stroke-dasharray: 3;
+    opacity: 0;
+}
+
+.flow .flow-auxiliary.active {
+    opacity: 1;
+}
+
+.flow .task {
+    fill: #0083ce;
+    stroke: #fff;
+    stroke-width: 1px;
+}
+
+.flow .task:hover,
+.flow .task.active {
+    fill: #66c484;
+}
+
+.flow .task.move {
+    opacity: 0.5;
+}
+
+.flow .condition {
+    fill: none;
+    stroke: #c0c0c0;
+    stroke-width: 1px;
+}
+
+.flow .condition .bg {
+    stroke: transparent;
+    stroke-width: 10px;
+}
+
+.flow .condition:hover {
+    stroke: #9c9c9c;
+}
+
+.flow .condition.active {
+    stroke: #167be0;
+}
+
+.layout {
+    background: radial-gradient(50% 50%, #2065ac, #1c385e);
 }
 
 #text {
@@ -24,71 +104,6 @@ svg.link * {
     visibility: hidden;
 }
 
-.shape {
-    cursor: pointer;
-}
-
-.task {
-    fill: #0083ce;
-    stroke: #fff;
-    stroke-width: 1px;
-}
-
-.task:hover,
-.task.active {
-    fill: #66c484;
-}
-
-.task.move {
-    opacity: 0.5;
-}
-
-.line {
-    fill: none;
-    stroke: #c0c0c0;
-    stroke-width: 1px;
-}
-
-.line .bg {
-    stroke: transparent;
-    stroke-width: 10px;
-}
-
-.line:hover {
-    stroke: #9c9c9c;
-}
-
-.line.active {
-    stroke: #167be0;
-}
-
-.marker {
-    fill: #c0c0c0;
-}
-
-.marker-hover {
-    fill: #9c9c9c;
-}
-
-.marker-active {
-    fill: #167be0;
-}
-
-.auxiliary {
-    stroke: #fff;
-    stroke-width: 1px;
-    stroke-dasharray: 3;
-    opacity: 0;
-}
-
-.auxiliary.active {
-    opacity: 1;
-}
-
 .action {
     margin-bottom: 10px;
-}
-
-.layout {
-    background: radial-gradient(50% 50%, #2065ac, #1c385e);
 }
