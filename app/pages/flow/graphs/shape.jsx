@@ -45,6 +45,9 @@ export default class Shape extends React.Component {
             <text x={x} y={y}>{text}</text>
         ) || null;
     }
+    _renderType() {
+        return null;
+    }
     _renderOther() {
         return null;
     }
@@ -53,7 +56,7 @@ export default class Shape extends React.Component {
         let { id, x, y, status } = this.state;
         return (
             <g id={id} className={"flow-shape task " + status} transform={"translate(" + x + "," + y + ")"} {...events}>
-                {this._render()}{this._renderText()}{this._renderOther()}
+                {this._render()}{this._renderText()}{this._renderOther()}{this._renderType()}
             </g>
         )
     }

@@ -22,17 +22,25 @@ export default class Rect extends Shape {
     _renderRedoIcon(x, y, key) {
         const attrs = { x, y, key };
         attrs.onClick = this._onIconClick.bind(this, key);
-        return <text {...attrs} className="flow-icon">&#xe031;</text>;
+        return <text {...attrs} className="flow-icon">&#xe907;</text>;
     }
     _renderContinueIcon(x, y, key) {
         const attrs = { x, y, key };
         attrs.onClick = this._onIconClick.bind(this, key);
-        return <text {...attrs} className="flow-icon">&#xe250;</text>;
+        return <text {...attrs} className="flow-icon">&#xe612;</text>;
     }
     _renderInterruptIcon(x, y, key) {
         const attrs = { x, y, key };
         attrs.onClick = this._onIconClick.bind(this, key);
-        return <text {...attrs} className="flow-icon">&#xe250;</text>;
+        return <text {...attrs} className="flow-icon">&#xe761;</text>;
+    }
+    _renderWorkflowIcon() {
+        const attrs = { x: 15, y: 20 };
+        return <text {...attrs} className="flow-icon type">&#xe800;</text>;
+    }
+    _renderOperationIcon() {
+        const attrs = { x: 15, y: 20 };
+        return <text {...attrs} className="flow-icon type">&#xe7b8;</text>;
     }
     _renderIcon(x, y, icon) {
         let element = null;
@@ -58,6 +66,16 @@ export default class Rect extends Shape {
             </g>
         ) || null;
     }
+    _renderType() {
+        const { type } = this.state;
+        let typeIcon = null;
+        if (type == 'workflow') {
+            typeIcon = this._renderWorkflowIcon();
+        } else if (type == 'operation') {
+            typeIcon = this._renderOperationIcon();
+        }
+        return typeIcon;
+    }
     _render() {
         const { fill, width, height, borderRadius } = this.state;
         return <rect x="0" y="0" rx={borderRadius} ry={borderRadius} width={width} height={height} fill={fill}></rect>
@@ -67,6 +85,7 @@ export default class Rect extends Shape {
         this.state.text = this.props.text;
         this.state.borderRadius = 3;
         this.state.buttons = [];
+        this.state.type = '';
         this.state.width = this._getActualWidth();
     }
     setText(text) {
@@ -94,5 +113,8 @@ export default class Rect extends Shape {
             });
         }
         this.setState({ buttons });
+    }
+    setType(type) {
+        this.setState({ type });
     }
 }

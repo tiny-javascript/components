@@ -9,24 +9,18 @@
 }
 
 .flow text {
+    fill: #fff;
     font-size: 12px;
     text-anchor: middle;
+    stroke: none;
 }
 
 .flow .flow-icon {
-    font-family: 'Glyphicons Halflings';
+    font-family: "iconfont" !important;
 }
 
-.flow .flow-marker {
-    fill: #c0c0c0;
-}
-
-.flow .flow-marker-hover {
-    fill: #9c9c9c;
-}
-
-.flow .flow-marker-active {
-    fill: #167be0;
+.flow .flow-icon.type{
+    font-size: 16px;
 }
 
 .flow .flow-shape {
@@ -44,10 +38,6 @@
     opacity: 1;
 }
 
-.flow .flow-shape .flow-action-layout text {
-    fill: red;
-}
-
 .flow .flow-auxiliary {
     stroke: #fff;
     stroke-width: 1px;
@@ -60,23 +50,32 @@
 }
 
 .flow .task {
-    fill: #0083ce;
-    stroke: #fff;
+    fill: #2d66b5;
+    stroke: rgba(255, 255, 255, 0.2);
     stroke-width: 1px;
 }
 
 .flow .task:hover,
 .flow .task.active {
-    fill: #66c484;
+    fill: #398ded;
 }
 
 .flow .task.move {
     opacity: 0.5;
 }
 
+.flow .flow-marker {
+    fill: #3275c4;
+}
+
+.flow .flow-marker-hover,
+.flow .flow-marker-active {
+    fill: #398ded;
+}
+
 .flow .condition {
     fill: none;
-    stroke: #c0c0c0;
+    stroke: #3275c4;
     stroke-width: 1px;
 }
 
@@ -85,12 +84,9 @@
     stroke-width: 10px;
 }
 
-.flow .condition:hover {
-    stroke: #9c9c9c;
-}
-
+.flow .condition:hover,
 .flow .condition.active {
-    stroke: #167be0;
+    stroke: #398ded;
 }
 
 .layout {

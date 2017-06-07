@@ -28,6 +28,7 @@ export default class Flow extends React.Component {
             name: '',
             color: '#66c484',
             graphKey: id,
+            type: '',
             button: {
                 redo: false,
                 continue: false,
@@ -107,6 +108,14 @@ export default class Flow extends React.Component {
         this.refs.layout.setButton(element.graphKey, element.button);
         this.setState({ element });
     }
+    _onTypeChange(e) {
+        let { element } = this.state;
+        element.type = e.target.value;
+        if (element.graphKey) {
+            this.refs.layout.setType(element.graphKey, element.type);
+        }
+        this.setState({ element });
+    }
     _onRedoClick(id) {
         console.log('redo', id);
     }
@@ -120,7 +129,8 @@ export default class Flow extends React.Component {
         let events = this._events;
         let { element, graph } = this.state;
         graph = JSON.parse(JSON.stringify(graph));
-        let onButtonChange = this._onButtonChange.bind(this)
+        let onTypeChange = this._onTypeChange.bind(this);
+        let onButtonChange = this._onButtonChange.bind(this);
         return (
             <div className="content">
                 <form className="form-inline">
@@ -129,19 +139,28 @@ export default class Flow extends React.Component {
                         <input type="text" className="form-control" style={{ width: 250 }} placeholder="请输入节点名称" value={element.name} onChange={this._onNameChange.bind(this)} />
                     </div>
                     <div className="form-group">
+                        <label>Type</label>
+                        <div className="radio">
+                            <label><input type="radio" name="type" value="workflow" onChange={onTypeChange} checked={element.type == 'workflow'} />编排</label>
+                        </div>
+                        <div className="radio">
+                            <label><input type="radio" name="type" value="operation" onChange={onTypeChange} checked={element.type == 'operation'} />操作</label>
+                        </div>
+                    </div>
+                    <div className="form-group">
                         <label>Color</label>
                         <input type="color" className="form-control" style={{ width: 50 }} value={element.color} onChange={this._onColorChange.bind(this)} />
                     </div>
                     <div className="form-group">
                         <label>Button</label>
                         <div className="checkbox">
-                            <label><input type="checkbox" name="button" value="redo" onChange={onButtonChange} checked={element.button.redo} />重做</label>
+                            <label><input type="checkbox" value="redo" onChange={onButtonChange} checked={element.button.redo} />重做</label>
                         </div>
                         <div className="checkbox">
-                            <label><input type="checkbox" name="button" value="continue" onChange={onButtonChange} checked={element.button.continue} />继续</label>
+                            <label><input type="checkbox" value="continue" onChange={onButtonChange} checked={element.button.continue} />继续</label>
                         </div>
                         <div className="checkbox">
-                            <label><input type="checkbox" name="button" value="interrupt" onChange={onButtonChange} checked={element.button.interrupt} />中断</label>
+                            <label><input type="checkbox" value="interrupt" onChange={onButtonChange} checked={element.button.interrupt} />中断</label>
                         </div>
                     </div>
                     <button type="button" className="btn btn-default" onClick={this._onAdd.bind(this)}>添加任务</button>

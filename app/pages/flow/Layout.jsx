@@ -350,6 +350,12 @@ export default class Layout extends React.Component {
             this.refs[id].setButton(button);
         }
     }
+    setType(id, type) {
+        let shape = this.state.shapes.get(id);
+        if (shape.type == SHAPE_RECT) {
+            this.refs[id].setType(type);
+        }
+    }
 }
 export {
     LAYOUT_WIDTH, LAYOUT_HEIGHT, SHAPE_WIDTH, SHAPE_HEIGHT, SHAPE_RECT, SHAPE_CIRCLE, SHAPE_LINE
