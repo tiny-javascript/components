@@ -47,7 +47,7 @@ export default class Line extends Shape {
         ) || null;
     }
     render() {
-        let { id, x1, y1, x2, y2, status } = this.state;
+        let { id, x1, y1, x2, y2, status, fill } = this.state;
         let path = createLinePath(x1, y1, x2, y2);
         let events = this.events;
         let markerEnd = "url(#arrow)";

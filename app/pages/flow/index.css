@@ -104,6 +104,14 @@
     visibility: hidden;
 }
 
-.action {
+.form-inline {
     margin-bottom: 10px;
+}
+
+.form-inline .form-group {
+    margin-right: 10px;
+}
+
+.form-inline label {
+    margin: 0 5px;
 }

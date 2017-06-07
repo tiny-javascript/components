@@ -6,7 +6,7 @@ export default class Shape extends React.Component {
         id: '',
         width: 100,
         height: 48,
-        text: 'Task'
+        text: ''
     }
     state = {
         x: this.props.x,
@@ -15,6 +15,7 @@ export default class Shape extends React.Component {
         width: this.props.width,
         height: this.props.height,
         text: this.props.text,
+        fill: '',
         status: 'default'
     }
     events = {}
@@ -68,5 +69,11 @@ export default class Shape extends React.Component {
     }
     setAxis(x, y) {
         this.setState({ x, y });
+    }
+    setText(text) {
+        this.setState({ text });
+    }
+    setBackground(color) {
+        this.setState({ fill: color });
     }
 }

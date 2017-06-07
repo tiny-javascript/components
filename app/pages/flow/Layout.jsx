@@ -35,7 +35,9 @@ export default class Layout extends React.Component {
     static STATUS_READONLY = 'readonly'
     static defaultProps = {
         onLink: function () { },
-        onDelete: function () { }
+        onClean: function () { },
+        onDelete: function () { },
+        onSelect: function () { }
     }
     state = {
         x: 0,
@@ -134,7 +136,7 @@ export default class Layout extends React.Component {
         }
     }
     _onKeyUp(e) {
-        if (e.keyCode == 8) {
+        if (e.keyCode == 8 || e.keyCode == 46) {
             this._delete();
         }
     }
@@ -143,12 +145,14 @@ export default class Layout extends React.Component {
         if (this.state.active) {
             this.refs[this.state.active].blur();
         }
+        this.props.onClean();
     }
     _onShapeClick(id) {
         if (this.state.active && this.state.active !== id) {
             this.refs[this.state.active].blur();
         }
         this.state.active = id;
+        this.props.onSelect(this.state.shapes.get(id));
     }
     _clearLine(line) {
         let { shapes } = this.state;
@@ -196,7 +200,7 @@ export default class Layout extends React.Component {
         }
         shapes.delete(active);
         this.setState({ shapes, active: '' }, () => {
-            this.props.onDelete(active);
+            this.props.onDelete(shape);
         });
     }
     _link(target, type) {
@@ -205,7 +209,9 @@ export default class Layout extends React.Component {
         if (type == TYPE_TASK) {
             let source = this._getLinkPoint(originNode, 'out');
             let target = this._getLinkPoint(targetNode, 'in');
-            this._addLine(source, target);
+            if (target.id != 'start') {
+                this._addLine(source, target);
+            }
         }
     }
     _addLine(source, target) {
@@ -213,10 +219,17 @@ export default class Layout extends React.Component {
         let line = createLine(source, target);
         let sourceShape = shapes.get(source.id);
         let targetShape = shapes.get(target.id);
+        let tmpArr = targetShape.lines.out.concat(sourceShape.lines.in);
+        let tmpSet = new Set(tmpArr);
+        if (tmpArr.length != tmpSet.size) {
+            return;
+        }
         sourceShape.lines.out.push(line.id);
         targetShape.lines.in.push(line.id);
         shapes.set(line.id, line);
-        this.setState({ shapes }, this.props.onLink);
+        this.setState({ shapes }, () => {
+            this.props.onLink(line.id, source.id, target.id);
+        });
     }
     _getLinkPoint(node, position) {
         let id = node.getAttribute('id');
@@ -298,6 +311,9 @@ export default class Layout extends React.Component {
             </svg>
         )
     }
+    shouldComponentUpdate(props, state) {
+        return this.state != state;
+    }
     componentWillMount() {
         // 初始化开始节点
         let start = createCircle(SHAPE_HEIGHT, (LAYOUT_HEIGHT - SHAPE_HEIGHT) / 2, 'start');
@@ -318,6 +334,21 @@ export default class Layout extends React.Component {
     }
     setStatus(status) {
         this.setState({ status });
+    }
+    setText(id, text) {
+        let shape = this.state.shapes.get(id);
+        shape.attrs.text = text;
+        this.refs[id].setText(text);
+    }
+    setBackground(id, color) {
+        let shape = this.state.shapes.get(id);
+        this.refs[id].setBackground(color);
+    }
+    setButton(id, button) {
+        let shape = this.state.shapes.get(id);
+        if (shape.type == SHAPE_RECT) {
+            this.refs[id].setButton(button);
+        }
     }
 }
 export {
