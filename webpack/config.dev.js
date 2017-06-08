@@ -20,9 +20,7 @@ module.exports = {
         loaders: [
             {
                 test: /\.js(x)*?$/,
-                loaders: [
-                    'react-hot', 'babel?presets[]=es2015&presets[]=react&presets[]=stage-1&plugins[]=transform-object-rest-spread&plugins[]=transform-decorators-legacy'
-                ],
+                loaders: ['react-hot', 'babel'],
                 exclude: [/node_modules/]
             }, {
                 test: /\.css/,
@@ -46,8 +44,11 @@ module.exports = {
     devServer: {
         contentBase: './',
         devtool: 'cheap-eval-source-map',
-        host: '127.0.0.1',
-        port: 9090
+        hot: true,
+        inline: true,
+        host: '0.0.0.0',
+        port: 9090,
+        compress: true
     },
     devtool: 'cheap-eval-source-map'
 };

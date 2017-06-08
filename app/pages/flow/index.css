@@ -19,7 +19,7 @@
     font-family: "iconfont" !important;
 }
 
-.flow .flow-icon.type{
+.flow .flow-icon.type {
     font-size: 16px;
 }
 
@@ -64,15 +64,6 @@
     opacity: 0.5;
 }
 
-.flow .flow-marker {
-    fill: #3275c4;
-}
-
-.flow .flow-marker-hover,
-.flow .flow-marker-active {
-    fill: #398ded;
-}
-
 .flow .condition {
     fill: none;
     stroke: #3275c4;
@@ -90,6 +81,7 @@
 }
 
 .layout {
+    background: #1e4f86;
     background: radial-gradient(50% 50%, #2065ac, #1c385e);
 }
 

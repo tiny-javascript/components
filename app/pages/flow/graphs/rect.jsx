@@ -1,6 +1,6 @@
 import React from 'react';
 import Shape from './shape';
-import { SHAPE_WIDTH } from '../layout';
+import { SHAPE_WIDTH, SHAPE_RECT } from '../layout';
 const ACTION_LATYOUT_WIDTH = 25;
 export default class Rect extends Shape {
     _getTextWidth(text) {
@@ -88,9 +88,11 @@ export default class Rect extends Shape {
         this.state.type = '';
         this.state.width = this._getActualWidth();
     }
-    setText(text) {
+    setText(text, callback) {
         let width = this._getActualWidth(text);
-        this.setState({ text, width });
+        this.setState({ text, width }, () => {
+            callback && callback(this.state);
+        });
     }
     setButton(button) {
         let buttons = [];
@@ -116,5 +118,13 @@ export default class Rect extends Shape {
     }
     setType(type) {
         this.setState({ type });
+    }
+    getData() {
+        let { id, x, y, width, height, text } = this.state;
+        return {
+            id,
+            type: SHAPE_RECT,
+            attrs: { x, y, width, height, text }
+        }
     }
 }

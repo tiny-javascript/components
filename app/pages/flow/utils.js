@@ -87,7 +87,7 @@ function translate(map) {
  * @param {*} x2 结束x轴坐标
  * @param {*} y2 结束y轴坐标
  */
-function createLinePath(x1, y1, x2, y2) {
+function createLinePath(x1, y1, x2, y2, hasArrow) {
     if (x1 == x2 && y1 == y2) {
         return false;
     }
@@ -144,6 +144,12 @@ function createLinePath(x1, y1, x2, y2) {
         }
     }
     points.push('H' + x2);
+    if (hasArrow) {
+        points.push('M' + x2 + ',' + y2);
+        points.push('L' + (x2 - 5) + ',' + (y2 - 5));
+        points.push('M' + x2 + ',' + y2);
+        points.push('L' + (x2 - 5) + ',' + (y2 + 5));
+    }
     return points.join(' ');
 }
 /**

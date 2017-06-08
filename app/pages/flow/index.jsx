@@ -8,17 +8,77 @@ export default class Flow extends React.Component {
             tasks: new Map(),
             links: new Map()
         },
-        graph: [],
+        graph: { x: 0, y: 0, nodes: [] },
         element: null
     }
     /**
      * 将服务器数据解析成操作数据
      */
-    _parse() { }
+    _parse(data) {
+        let tasks = new Map();
+        let links = new Map();
+        data.forEach(item => {
+            let task = this._createElement(item.graphKey);
+            task.name = item.name;
+            task.type = item.type;
+            tasks.set(item.graphKey, task);
+            item.nexts.forEach(next => {
+                let link = this._createElement(next.graphKey);
+                link.name = next.name;
+                link.data = {
+                    prev: item.graphKey,
+                    next: next.task.graphKey
+                }
+                links.set(next.graphKey, link);
+            });
+        });
+        return { tasks, links };
+    }
     /**
      * 将操作数据还原成服务器数据
      */
-    _reset() { }
+    _reset() {
+        let data = [];
+        let dataMap = new Map();
+        dataMap.set('start', {
+            name: 'start',
+            graphKey: 'start',
+            prevs: [],
+            nexts: []
+        });
+        let { tasks, links } = this.state.data;
+        tasks.forEach(task => {
+            dataMap.set(task.graphKey, {
+                name: task.name,
+                code: task.graphKey,
+                graphKey: task.graphKey,
+                type: task.type,
+                prevs: [],
+                nexts: []
+            });
+        });
+        links.forEach(link => {
+            let prevTask = dataMap.get(link.data.prev);
+            let nextTask = dataMap.get(link.data.next);
+            prevTask.nexts.push({
+                name: link.name,
+                graphKey: link.graphKey,
+                task: {
+                    code: nextTask.code,
+                    graphKey: nextTask.graphKey
+                },
+                condExpr: []
+            });
+            nextTask.prevs.push({
+                task: {
+                    code: prevTask.code,
+                    graphKey: prevTask.graphKey
+                }
+            });
+        });
+        dataMap.forEach(item => data.push(item));
+        return data;
+    }
     /**
      * 将操作数据翻译成图形数据
      */
@@ -39,6 +99,12 @@ export default class Flow extends React.Component {
             },
             data: {}
         }
+    }
+    _onSave() {
+        let data = this._reset();
+        let graph = this.refs.layout.getData();
+        localStorage.setItem('data', JSON.stringify(data));
+        localStorage.setItem('graph', JSON.stringify(graph));
     }
     _onAdd() {
         this.refs.layout.add(shape => {
@@ -127,7 +193,7 @@ export default class Flow extends React.Component {
     }
     render() {
         let events = this._events;
-        let { element, graph } = this.state;
+        let { element, graph, data } = this.state;
         graph = JSON.parse(JSON.stringify(graph));
         let onTypeChange = this._onTypeChange.bind(this);
         let onButtonChange = this._onButtonChange.bind(this);
@@ -165,9 +231,10 @@ export default class Flow extends React.Component {
                     </div>
                     <button type="button" className="btn btn-default" onClick={this._onAdd.bind(this)}>添加任务</button>
                     <button type="button" className="btn btn-info" onClick={this._onSetLink.bind(this)}>连接</button>
+                    <button type="button" className="btn btn-info" onClick={this._onSave.bind(this)}>保存</button>
                 </form>
                 <div className="layout">
-                    <Layout ref="layout" width={LAYOUT_WIDTH} height={LAYOUT_HEIGHT} data={graph} {...events} />
+                    <Layout ref="layout" x={graph.x} y={graph.y} width={LAYOUT_WIDTH} height={LAYOUT_HEIGHT} data={graph.nodes} {...events} />
                 </div>
             </div>
         )
@@ -180,5 +247,20 @@ export default class Flow extends React.Component {
             onSelect: this._onSelect.bind(this)
         };
         this.state.element = this._createElement('');
+        let graph = localStorage.getItem('graph');
+        if (graph) {
+            this.state.graph = JSON.parse(graph);
+        }
+        let data = localStorage.getItem('data');
+        if (data) {
+            data = JSON.parse(data);
+            this.state.data = this._parse(data);
+        }
+    }
+    componentDidMount() {
+        let { tasks } = this.state.data;
+        tasks.forEach(task => {
+            this.refs.layout.setType(task.graphKey, task.type);
+        });
     }
 }

@@ -18,9 +18,7 @@ module.exports = {
         loaders: [
             {
                 test: /\.js(x)*?$/,
-                loaders: [
-                    'react-hot', 'babel?presets[]=es2015&presets[]=react&presets[]=stage-1&plugins[]=transform-object-rest-spread&plugins[]=transform-decorators-legacy'
-                ],
+                loaders: ['babel'],
                 exclude: [/node_modules/]
             }, {
                 test: /\.css/,

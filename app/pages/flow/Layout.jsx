@@ -34,14 +34,16 @@ export default class Layout extends React.Component {
     static STATUS_LINKING = 'link'
     static STATUS_READONLY = 'readonly'
     static defaultProps = {
+        x: 0,
+        y: 0,
         onLink: function () { },
         onClean: function () { },
         onDelete: function () { },
         onSelect: function () { }
     }
     state = {
-        x: 0,
-        y: 0,
+        x: this.props.x,
+        y: this.props.y,
         start: {},
         shapes: new Map(),
         active: '',
@@ -291,19 +293,6 @@ export default class Layout extends React.Component {
         let data = translate(shapes);
         return (
             <svg ref="svg" className={'flow ' + status} width={width} height={height} {...events} tabIndex="-1">
-                <defs>
-                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrow" className="flow-marker"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
-                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrowHover" className="flow-marker-hover"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
-                    <marker viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto" id="arrowActive" className="flow-marker-active"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker>
-                    <filter id="drop-shadow">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"></feGaussianBlur>
-                        <feOffset in="blur" dx="0" dy="1" result="offsetBlur"></feOffset>
-                        <feMerge>
-                            <feMergeNode in="offsetBlur"></feMergeNode>
-                            <feMergeNode in="SourceGraphic"></feMergeNode>
-                        </feMerge>
-                    </filter>
-                </defs>
                 <g ref="container" className="flow-container" transform={"translate(" + x + "," + y + ")"}>
                     {data.map(this._renderShape.bind(this))}
                     <line className="flow-auxiliary" ref="auxiliary" x1="0" y1="0" x2="0" y2="0"></line>
@@ -338,7 +327,17 @@ export default class Layout extends React.Component {
     setText(id, text) {
         let shape = this.state.shapes.get(id);
         shape.attrs.text = text;
-        this.refs[id].setText(text);
+        this.refs[id].setText(text, (rect) => {
+            shape.attrs.width = rect.width;
+            let x = shape.attrs.x + shape.attrs.width;
+            let y = shape.attrs.y + shape.attrs.height / 2;
+            shape.lines.out.forEach(line => {
+                let lineNode = this.state.shapes.get(line);
+                lineNode.attrs.x1 = x;
+                lineNode.attrs.y1 = y;
+                this.refs[line].setBegin(x, y);
+            });
+        });
     }
     setBackground(id, color) {
         let shape = this.state.shapes.get(id);
@@ -355,6 +354,14 @@ export default class Layout extends React.Component {
         if (shape.type == SHAPE_RECT) {
             this.refs[id].setType(type);
         }
+    }
+    getData() {
+        let { x, y, shapes } = this.state;
+        let nodes = [];
+        for (let value of shapes.values()) {
+            nodes.push(value);
+        }
+        return { x, y, nodes };
     }
 }
 export {

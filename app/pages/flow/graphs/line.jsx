@@ -1,7 +1,7 @@
 import React from 'react';
 import Shape from './shape';
 import { createLinePath } from '../utils';
-import { SHAPE_HEIGHT } from '../layout';
+import { SHAPE_HEIGHT, SHAPE_LINE } from '../layout';
 export default class Line extends Shape {
     static defaultProps = {
         id: '',
@@ -19,12 +19,6 @@ export default class Line extends Shape {
         y2: this.props.y2,
         text: this.props.text,
         status: 'default'
-    }
-    setBegin(x, y) {
-        this.setState({ x1: x, y1: y });
-    }
-    setEnd(x, y) {
-        this.setState({ x2: x, y2: y });
     }
     text() {
         let { text, x1, y1, x2, y2 } = this.state;
@@ -48,20 +42,28 @@ export default class Line extends Shape {
     }
     render() {
         let { id, x1, y1, x2, y2, status, fill } = this.state;
-        let path = createLinePath(x1, y1, x2, y2);
+        let path = createLinePath(x1, y1, x2, y2, true);
         let events = this.events;
-        let markerEnd = "url(#arrow)";
-        if (status == 'hover') {
-            markerEnd = "url(#arrowHover)";
-        } else if (status == 'active') {
-            markerEnd = "url(#arrowActive)";
-        }
         return (
             <g id={id} className={"flow-shape condition " + status} {...events}>
                 <path className="bg" d={path} />
-                <path markerEnd={markerEnd} d={path} />
+                <path d={path} />
                 {this.text()}
             </g>
         )
+    }
+    setBegin(x, y) {
+        this.setState({ x1: x, y1: y });
+    }
+    setEnd(x, y) {
+        this.setState({ x2: x, y2: y });
+    }
+    getData() {
+        let { id, x1, y1, x2, y2, text } = this.state;
+        return {
+            id,
+            type: SHAPE_LINE,
+            attrs: { x1, y1, x2, y2, text }
+        }
     }
 }
