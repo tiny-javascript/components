@@ -86,7 +86,7 @@ export default class Rect extends Shape {
         this.state.borderRadius = 3;
         this.state.buttons = [];
         this.state.type = '';
-        this.state.width = this._getActualWidth();
+        this.state.width = this._getActualWidth(this.state.text);
     }
     setText(text, callback) {
         let width = this._getActualWidth(text);
