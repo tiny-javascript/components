@@ -1,83 +1,20 @@
 import uuid from 'uuid';
-import { SHAPE_RECT, SHAPE_CIRCLE, SHAPE_LINE, SHAPE_WIDTH, SHAPE_HEIGHT } from './layout';
-/**
- * 创建矩形
- * @param {*} x x轴坐标
- * @param {*} y y轴坐标
- */
-function createReat(x, y) {
-    let id = uuid.v4();
-    return {
-        id,
-        type: SHAPE_RECT,
-        lines: {
-            in: [],
-            out: []
-        },
-        attrs: {
-            x: x,
-            y: y,
-            width: SHAPE_WIDTH,
-            height: SHAPE_HEIGHT
-        }
-    }
+import { SHAPE_WIDTH, SHAPE_HEIGHT } from './constants';
 
-}
-/**
- * 创建圆形
- * @param {*} x x轴坐标
- * @param {*} y y轴坐标
- * @param {*} id 唯一标识
- */
-function createCircle(x, y, id) {
-    id = id || uuid.v4();
-    return {
-        id: id,
-        type: SHAPE_CIRCLE,
-        lines: {
-            in: [],
-            out: []
-        },
-        attrs: {
-            x: x,
-            y: y,
-            r: SHAPE_HEIGHT / 2,
-            width: SHAPE_HEIGHT,
-            height: SHAPE_HEIGHT,
-            text: '开始'
-        }
-    }
-}
-/**
- * 创建连线
- * @param {*} source 开始对象
- * @param {*} target 结束对象
- */
-function createLine(source, target) {
-    let id = uuid.v4();
-    return {
-        id,
-        type: SHAPE_LINE,
-        from: source.id,
-        to: target.id,
-        attrs: {
-            x1: source.x,
-            y1: source.y,
-            x2: target.x,
-            y2: target.y
-        }
-    }
+function map2array(map) {
+    let arr = [];
+    map.forEach(function (item) {
+        arr.push(item);
+    });
+    return arr;
 }
 
-
-/**
- * 将map转换成数组
- * @param {*} map 
- */
-function translate(map) {
-    let tmp = [];
-    map.forEach(value => tmp.push(value));
-    return tmp;
+function array2map(arr, field) {
+    let map = new Map();
+    arr.forEach(function (item) {
+        map.set(item[field], item);
+    });
+    return map;
 }
 
 /**
@@ -199,4 +136,20 @@ function getCorners(radius) {
     }
 }
 
-export { createReat, createCircle, createLine, createLinePath, translate };
+function queryId(node) {
+    let id = false;
+    while (node && node.tagName && !id) {
+        id = node.getAttribute('id');
+        node = node.parentNode;
+    }
+    return id;
+}
+
+function getTextWidth(text) {
+    text = text || '';
+    let node = document.getElementById('text');
+    node.innerHTML = text;
+    return node.offsetWidth;
+}
+
+export { map2array, array2map, createLinePath, queryId, getTextWidth };

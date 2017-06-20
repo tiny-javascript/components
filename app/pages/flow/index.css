@@ -8,75 +8,93 @@
     cursor: crosshair !important;
 }
 
-.flow text {
+text {
     fill: #fff;
     font-size: 12px;
     text-anchor: middle;
     stroke: none;
 }
 
-.flow .flow-icon {
+.flow-icon {
     font-family: "iconfont" !important;
 }
 
-.flow .flow-icon.type {
+.flow-icon.type {
     font-size: 16px;
 }
 
-.flow .flow-shape {
+.shape {
     cursor: pointer;
 }
 
-.flow .flow-shape .flow-action-layout {
+.event {
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 1px;
+}
+
+.event.start {
+    fill: #2d66b5;
+}
+
+.event.start:hover,
+.event.start.active {
+    fill: #398ded;
+}
+
+.event.over {
+    fill: #adadad;
+}
+
+.event.over:hover,
+.event.over.active {
+    fill: #999;
+}
+
+.flow-shape .flow-action-layout {
     fill: rgba(0, 0, 0, 0.3);
     stroke-width: 0;
     transition: opacity .2s;
     opacity: 0;
 }
 
-.flow .flow-shape:hover .flow-action-layout {
+.flow-shape:hover .flow-action-layout {
     opacity: 1;
 }
 
-.flow .flow-auxiliary {
+.auxiliary {
     stroke: #fff;
     stroke-width: 1px;
     stroke-dasharray: 3;
-    opacity: 0;
 }
 
-.flow .flow-auxiliary.active {
-    opacity: 1;
-}
-
-.flow .task {
+.task {
     fill: #2d66b5;
     stroke: rgba(255, 255, 255, 0.2);
     stroke-width: 1px;
 }
 
-.flow .task:hover,
-.flow .task.active {
+.task:hover,
+.task.active {
     fill: #398ded;
 }
 
-.flow .task.move {
+.task.move {
     opacity: 0.5;
 }
 
-.flow .condition {
+.condition {
     fill: none;
     stroke: #3275c4;
     stroke-width: 1px;
 }
 
-.flow .condition .bg {
+.condition .bg {
     stroke: transparent;
     stroke-width: 10px;
 }
 
-.flow .condition:hover,
-.flow .condition.active {
+.condition:hover,
+.condition.active {
     stroke: #398ded;
 }
 
