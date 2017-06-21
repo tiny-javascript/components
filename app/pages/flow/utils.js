@@ -1,22 +1,52 @@
 import uuid from 'uuid';
-import { SHAPE_WIDTH, SHAPE_HEIGHT } from './constants';
+import { SHAPE_WIDTH, SHAPE_HEIGHT, POSITION_TOP, POSITION_RIGHT, POSITION_BOTTOM, POSITION_LEFT } from './constants';
 
-function map2array(map) {
-    let arr = [];
-    map.forEach(function (item) {
-        arr.push(item);
-    });
-    return arr;
+/**
+ * 创建圆角
+ * @param {*} x 终点X坐标
+ * @param {*} y 终点y坐标
+ * @param {*} r 半径
+ * @param {*} d 方向
+ */
+function createLineCorner(x, y, r, d) {
+    let attrs = [];
+    attrs.push(r); // x轴半径
+    attrs.push(r); // y轴半径
+    attrs.push(0); // x轴旋转角度
+    attrs.push(0); // 角度大小，0是小角，1是大角
+    attrs.push(d); // 弧线方向, 0是逆时针，1是顺时针
+    attrs.push(x);
+    attrs.push(y);
+    return 'a' + attrs.join(',');
 }
-
-function array2map(arr, field) {
-    let map = new Map();
-    arr.forEach(function (item) {
-        map.set(item[field], item);
-    });
-    return map;
+/**
+ * 获取所有圆角，up代表向上走，down代表向下走
+ * @param {*} radius 圆角半径
+ */
+function getCorners(radius) {
+    return {
+        up: {
+            top: {
+                left: createLineCorner(radius, -radius, radius, 1),
+                right: createLineCorner(-radius, -radius, radius, 0)
+            },
+            bottom: {
+                left: createLineCorner(-radius, -radius, radius, 1),
+                right: createLineCorner(radius, -radius, radius, 0)
+            }
+        },
+        down: {
+            top: {
+                left: createLineCorner(-radius, radius, radius, 0),
+                right: createLineCorner(radius, radius, radius, 1)
+            },
+            bottom: {
+                left: createLineCorner(radius, radius, radius, 0),
+                right: createLineCorner(-radius, radius, radius, 1)
+            }
+        }
+    }
 }
-
 /**
  * 创建线的路径
  * @param {*} x1 开始x轴坐标
@@ -24,7 +54,7 @@ function array2map(arr, field) {
  * @param {*} x2 结束x轴坐标
  * @param {*} y2 结束y轴坐标
  */
-function createLinePath(x1, y1, x2, y2, hasArrow) {
+export function createLinePath(x1, y1, x2, y2, hasArrow) {
     if (x1 == x2 && y1 == y2) {
         return false;
     }
@@ -89,54 +119,21 @@ function createLinePath(x1, y1, x2, y2, hasArrow) {
     }
     return points.join(' ');
 }
-/**
- * 创建圆角
- * @param {*} x 终点X坐标
- * @param {*} y 终点y坐标
- * @param {*} r 半径
- * @param {*} d 方向
- */
-function createLineCorner(x, y, r, d) {
-    let attrs = [];
-    attrs.push(r); // x轴半径
-    attrs.push(r); // y轴半径
-    attrs.push(0); // x轴旋转角度
-    attrs.push(0); // 角度大小，0是小角，1是大角
-    attrs.push(d); // 弧线方向, 0是逆时针，1是顺时针
-    attrs.push(x);
-    attrs.push(y);
-    return 'a' + attrs.join(',');
+export function map2array(map) {
+    let arr = [];
+    map.forEach(function (item) {
+        arr.push(item);
+    });
+    return arr;
 }
-/**
- * 获取所有圆角，up代表向上走，down代表向下走
- * @param {*} radius 圆角半径
- */
-function getCorners(radius) {
-    return {
-        up: {
-            top: {
-                left: createLineCorner(radius, -radius, radius, 1),
-                right: createLineCorner(-radius, -radius, radius, 0)
-            },
-            bottom: {
-                left: createLineCorner(-radius, -radius, radius, 1),
-                right: createLineCorner(radius, -radius, radius, 0)
-            }
-        },
-        down: {
-            top: {
-                left: createLineCorner(-radius, radius, radius, 0),
-                right: createLineCorner(radius, radius, radius, 1)
-            },
-            bottom: {
-                left: createLineCorner(radius, radius, radius, 0),
-                right: createLineCorner(-radius, radius, radius, 1)
-            }
-        }
-    }
+export function array2map(arr, field) {
+    let map = new Map();
+    arr.forEach(function (item) {
+        map.set(item[field], item);
+    });
+    return map;
 }
-
-function queryId(node) {
+export function queryId(node) {
     let id = false;
     while (node && node.tagName && !id) {
         id = node.getAttribute('id');
@@ -144,12 +141,22 @@ function queryId(node) {
     }
     return id;
 }
-
-function getTextWidth(text) {
+export function getTextWidth(text) {
     text = text || '';
     let node = document.getElementById('text');
     node.innerHTML = text;
     return node.offsetWidth;
 }
-
-export { map2array, array2map, createLinePath, queryId, getTextWidth };
+export function getLinkPoints(width, height) {
+    let map = new Map();
+    map.set(POSITION_TOP, [width / 2, 0]);
+    map.set(POSITION_RIGHT, [width, height / 2]);
+    map.set(POSITION_BOTTOM, [width / 2, height]);
+    map.set(POSITION_LEFT, [0, height / 2]);
+    return map;
+}
+export function getLinkPointAxis(element, position) {
+    let { attrs, points } = element;
+    let point = points.get(position);
+    return [attrs.x + point[0], attrs.y + point[1]];
+}

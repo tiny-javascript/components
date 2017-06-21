@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAYOUT_WIDTH, LAYOUT_HEIGHT, LAYOUT_STATUS_LINK, ELEMENT_TYPE_TASK } from './constants';
+import { LAYOUT_WIDTH, LAYOUT_HEIGHT, LAYOUT_STATUS_LINK, ELEMENT_TYPE_TASK, ELEMENT_TYPE_MANAGER } from './constants';
 import Layout from './layout';
 import './index.css';
 let layout = null;
@@ -81,8 +81,8 @@ export default class Flow extends React.Component {
      * 将操作数据翻译成图形数据
      */
     _translate() { }
-    _onAdd() {
-        layout.add(ELEMENT_TYPE_TASK).then((id) => {
+    _onAdd(type) {
+        layout.add(type).then((id) => {
             console.log('add:', ELEMENT_TYPE_TASK, id);
         });
     }
@@ -110,7 +110,8 @@ export default class Flow extends React.Component {
         return (
             <div className="content">
                 <form className="form-inline">
-                    <button type="button" className="btn btn-default" onClick={this._onAdd.bind(this)}>添加任务</button>
+                    <button type="button" className="btn btn-primary" onClick={this._onAdd.bind(this, ELEMENT_TYPE_TASK)}>添加任务</button>
+                    <button type="button" className="btn btn-success" onClick={this._onAdd.bind(this, ELEMENT_TYPE_MANAGER)}>添加管控</button>
                     <button type="button" className="btn btn-info" onClick={this._onSetLink.bind(this)}>连接</button>
                 </form>
                 <div className="layout">

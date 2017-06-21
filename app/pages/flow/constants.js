@@ -28,3 +28,8 @@ export const ICON_CONTINUE = 'continue';
 export const ICON_INTERRUPT = 'interrupt';
 export const ICON_WORKFLOW = 'workflow';
 export const ICON_OPERATION = 'opertiaon';
+// 连接点位置
+export const POSITION_TOP = 'top';
+export const POSITION_BOTTOM = 'bottom';
+export const POSITION_LEFT = 'left';
+export const POSITION_RIGHT = 'right';

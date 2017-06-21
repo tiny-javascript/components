@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
+import ReactDom from 'react-dom';
 import { STATUS_DEFAULT, STATUS_ACTIVE, LAYOUT_STATUS_EDIT } from '../constants';
+import { getLinkPoints } from '../utils';
 const move = {
+    id: '',
     origin: { x: 0, y: 0 },
     begin: { x: 0, y: 0 },
     end: { x: 0, y: 0 },
@@ -11,7 +14,6 @@ export default class AbstractController extends Component {
         data: this.props.data,
         status: STATUS_DEFAULT
     }
-    _initAttrs() { }
     _getClassName() {
         let { data, status } = this.state;
         return [data.type, status].join(' ');
@@ -26,14 +28,24 @@ export default class AbstractController extends Component {
             onMouseMove: this._onMouseMove.bind(this)
         }
     }
+    _getPoints() {
+        let { width, height } = this.state.data.attrs;
+        return getLinkPoints(width, height);
+    }
     _onMouseDown(e) {
         e.stopPropagation();
-        let { attrs } = this.state.data;
+        let { id, attrs } = this.state.data;
+        move.id = id;
+        move.active = true;
         move.begin.x = e.clientX;
         move.begin.y = e.clientY;
         move.origin.x = attrs.x;
         move.origin.y = attrs.y;
-        move.active = true;
+        move.node = ReactDom.findDOMNode(this.refs.shape);
+        // 将需要移动的节点放在最上层
+        setTimeout(() => {
+            document.getElementById('container').appendChild(move.node);
+        }, 50);
     }
     _onMouseMove(e) {
         e.stopPropagation();
@@ -41,9 +53,15 @@ export default class AbstractController extends Component {
             return;
         }
         let { data } = this.state;
-        data.attrs.x = move.origin.x + e.clientX - move.begin.x;
-        data.attrs.y = move.origin.y + e.clientY - move.begin.y;
-        this.setState({ data });
+        if (move.id !== data.id) {
+            return;
+        }
+        let x = move.origin.x + e.clientX - move.begin.x;
+        let y = move.origin.y + e.clientY - move.begin.y;
+        data.attrs.x = x;
+        data.attrs.y = y;
+        move.node.setAttribute('transform', "translate(" + x + "," + y + ")");
+        this.props.onMove && this.props.onMove(move.id);
     }
     _onMouseUp(e) {
         e.stopPropagation();
@@ -51,12 +69,6 @@ export default class AbstractController extends Component {
     }
     render() {
         return 'this is abstract controller';
-    }
-    componentWillMount() {
-        this._initAttrs();
-        this.events = {
-
-        }
     }
     componentWillReceiveProps(props) {
         this.state.status = props.active && STATUS_ACTIVE || STATUS_DEFAULT;

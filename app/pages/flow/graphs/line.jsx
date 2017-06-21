@@ -1,7 +1,7 @@
 import React from 'react';
 import Shape from './shape';
 import { createLinePath } from '../utils';
-import { SHAPE_HEIGHT, SHAPE_LINE } from '../layout';
+import { SHAPE_HEIGHT, SHAPE_LINE } from '../constants';
 export default class Line extends Shape {
     static defaultProps = {
         id: '',
@@ -9,19 +9,11 @@ export default class Line extends Shape {
         y1: 0,
         x2: 0,
         y2: 0,
-        text: ''
-    }
-    state = {
-        id: this.props.id,
-        x1: this.props.x1,
-        y1: this.props.y1,
-        x2: this.props.x2,
-        y2: this.props.y2,
-        text: this.props.text,
-        status: 'default'
+        text: '',
+        className: ''
     }
     text() {
-        let { text, x1, y1, x2, y2 } = this.state;
+        let { text, x1, y1, x2, y2 } = this.props;
         let px = x2 - x1 > 0 && 1 || -1;
         let py = y2 - y1 > 0 && 1 || -1;
         let w = Math.abs(x2 - x1);
@@ -41,29 +33,14 @@ export default class Line extends Shape {
         ) || null;
     }
     render() {
-        let { id, x1, y1, x2, y2, status, fill } = this.state;
+        let { id, x1, y1, x2, y2, className } = this.props;
         let path = createLinePath(x1, y1, x2, y2, true);
-        let events = this.events;
         return (
-            <g id={id} className={"flow-shape condition " + status} {...events}>
+            <g id={id} className={className}>
                 <path className="bg" d={path} />
                 <path d={path} />
                 {this.text()}
             </g>
         )
-    }
-    setBegin(x, y) {
-        this.setState({ x1: x, y1: y });
-    }
-    setEnd(x, y) {
-        this.setState({ x2: x, y2: y });
-    }
-    getData() {
-        let { id, x1, y1, x2, y2, text } = this.state;
-        return {
-            id,
-            type: SHAPE_LINE,
-            attrs: { x1, y1, x2, y2, text }
-        }
     }
 }

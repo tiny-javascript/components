@@ -15,12 +15,14 @@ text {
     stroke: none;
 }
 
-.flow-icon {
+.ico {
     font-family: "iconfont" !important;
 }
 
-.flow-icon.type {
-    font-size: 16px;
+.auxiliary {
+    stroke: #fff;
+    stroke-width: 1px;
+    stroke-dasharray: 3;
 }
 
 .shape {
@@ -50,51 +52,33 @@ text {
     fill: #999;
 }
 
-.flow-shape .flow-action-layout {
-    fill: rgba(0, 0, 0, 0.3);
-    stroke-width: 0;
-    transition: opacity .2s;
-    opacity: 0;
-}
-
-.flow-shape:hover .flow-action-layout {
-    opacity: 1;
-}
-
-.auxiliary {
-    stroke: #fff;
-    stroke-width: 1px;
-    stroke-dasharray: 3;
-}
-
-.task {
+.task,
+.manager {
     fill: #2d66b5;
     stroke: rgba(255, 255, 255, 0.2);
     stroke-width: 1px;
 }
 
 .task:hover,
-.task.active {
+.task.active,
+.manager:hover,
+.manager.active {
     fill: #398ded;
 }
 
-.task.move {
-    opacity: 0.5;
-}
-
-.condition {
+.line {
     fill: none;
     stroke: #3275c4;
     stroke-width: 1px;
 }
 
-.condition .bg {
+.line .bg {
     stroke: transparent;
     stroke-width: 10px;
 }
 
-.condition:hover,
-.condition.active {
+.line:hover,
+.line.active {
     stroke: #398ded;
 }
 
@@ -112,12 +96,4 @@ text {
 
 .form-inline {
     margin-bottom: 10px;
-}
-
-.form-inline .form-group {
-    margin-right: 10px;
-}
-
-.form-inline label {
-    margin: 0 5px;
 }

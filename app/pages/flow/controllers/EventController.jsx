@@ -3,7 +3,17 @@ import AbstractController from './AbstractController';
 import Circle from '../graphs/circle';
 import { ELEMENT_TYPE_EVENT_START, ELEMENT_TYPE_EVENT_OVER, SHAPE_HEIGHT, LAYOUT_WIDTH, LAYOUT_HEIGHT } from '../constants';
 export default class EventController extends AbstractController {
-    _initAttrs() {
+    _getClassName() {
+        let { data, status } = this.state;
+        return [data.type, data.subType, status].join(' ');
+    }
+    render() {
+        let events = this._getEvents();
+        let { attrs } = this.state.data;
+        let className = this._getClassName();
+        return <Circle ref="shape" className={className} events={events} {...attrs} />;
+    }
+    componentWillMount() {
         let { data } = this.state;
         let { attrs } = data;
         attrs = {
@@ -21,15 +31,6 @@ export default class EventController extends AbstractController {
             attrs.x = attrs.x || LAYOUT_WIDTH - SHAPE_HEIGHT * 2;
         }
         data.attrs = attrs;
-    }
-    _getClassName() {
-        let { data, status } = this.state;
-        return [data.type, data.subType, status].join(' ');
-    }
-    render() {
-        let events = this._getEvents();
-        let { attrs } = this.state.data;
-        let className = this._getClassName();
-        return <Circle className={className} events={events} {...attrs} />;
+        data.points = this._getPoints();
     }
 }

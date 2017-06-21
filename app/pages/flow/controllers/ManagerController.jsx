@@ -1,6 +1,6 @@
 import React from 'react';
 import AbstractController from './AbstractController';
-import Rect from '../graphs/rect';
+import Diamond from '../graphs/diamond';
 import { SHAPE_WIDTH, SHAPE_HEIGHT } from '../constants';
 import { getTextWidth } from '../utils';
 export default class TaskController extends AbstractController {
@@ -15,7 +15,7 @@ export default class TaskController extends AbstractController {
         let events = this._getEvents();
         let { attrs } = this.state.data;
         let className = this._getClassName();
-        return <Rect ref="shape" className={className} events={events} {...attrs} />;
+        return <Diamond ref="shape" className={className} events={events} {...attrs} />;
     }
     componentWillMount() {
         let { data } = this.state;
@@ -27,7 +27,6 @@ export default class TaskController extends AbstractController {
             y: attrs.y || 10,
             width: attrs.width || SHAPE_WIDTH,
             height: attrs.height || SHAPE_HEIGHT,
-            borderRadius: 3
         }
         attrs.width = this._getActualWidth(attrs.text);
         data.attrs = attrs;
