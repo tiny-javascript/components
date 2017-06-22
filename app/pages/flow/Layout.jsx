@@ -5,7 +5,7 @@ import TaskModel from './models/TaskModel';
 import ManagerModel from './models/ManagerModel';
 import LinkModel from './models/LinkModel';
 import * as Constant from './constants';
-import { array2map, map2array, queryId, getLinkPointAxis } from './utils';
+import { array2map, map2array, queryId, getLinkPointAxis, remove } from './utils';
 const migration = {
     source: "",
     active: false,
@@ -28,7 +28,39 @@ export default class Layout extends React.Component {
         elements: new Map(),
         status: Constant.LAYOUT_STATUS_EDIT
     }
-    _delete() { }
+    _deleteLine(line) {
+        let { elements } = this.state;
+        let prev = elements.get(line.prevs[0]);
+        let next = elements.get(line.nexts[0]);
+        prev.nexts = remove(prev.nexts, item => item.id == line.id);
+        next.prevs = remove(next.prevs, item => item.id == line.id);
+        line.prevs = [];
+        line.nexts = [];
+        this.props.onDelete(line);
+    }
+    _delete() {
+        let { element, elements } = this.state;
+        if (!element) {
+            return;
+        }
+        if (element.type == Constant.ELEMENT_TYPE_EVENT) {
+            return;
+        }
+        if (element.type == Constant.ELEMENT_TYPE_LINK) {
+            this._deleteLine(element);
+        } else {
+            let lines = element.prevs.concat(element.nexts);
+            console.log(lines)
+            lines.forEach(item => {
+                let line = elements.get(item.id);
+                this._deleteLine(line);
+                elements.delete(line.id);
+            });
+            this.props.onDelete(element);
+        }
+        elements.delete(element.id);
+        this.setState({ elements });
+    }
     _link(source, target) {
         let { elements } = this.state;
         let sourcePoint = getLinkPointAxis(source, Constant.POSITION_RIGHT);
@@ -38,8 +70,8 @@ export default class Layout extends React.Component {
         model.attrs.y1 = sourcePoint[1];
         model.attrs.x2 = targetPoint[0];
         model.attrs.y2 = targetPoint[1];
-        model.prevs = [sourcePoint.id];
-        model.nexts = [targetPoint.id];
+        model.prevs = [source.id];
+        model.nexts = [target.id];
         source.nexts.push({ id: model.id, position: Constant.POSITION_RIGHT });
         target.prevs.push({ id: model.id, position: Constant.POSITION_LEFT });
         elements.set(model.id, model);

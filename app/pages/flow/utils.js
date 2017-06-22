@@ -133,6 +133,15 @@ export function array2map(arr, field) {
     });
     return map;
 }
+export function remove(arr, cb) {
+    let tmp = [];
+    arr.forEach(function (element) {
+        if (!cb(element)) {
+            tmp.push(element);
+        }
+    }, this);
+    return tmp;
+}
 export function queryId(node) {
     let id = false;
     while (node && node.tagName && !id) {
