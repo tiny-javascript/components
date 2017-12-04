@@ -1,0 +1,58 @@
+.graph {
+    background: rgba(30, 79, 134, 1);
+    cursor: grab;
+    cursor: -webkit-grab;
+    * {
+        user-select: none;
+    }
+    text {
+        fill: #fff;
+        font-size: 12px;
+        text-anchor: middle;
+        stroke: none;
+    }
+    .element {
+        fill: #2d66b5;
+        stroke: #4082e6;
+        stroke-width: 2px;
+        cursor: pointer;
+        &.active,
+        &:hover {
+            fill: #398ded;
+        }
+        .point {
+            opacity: 0;
+            transition: opacity 0.15s;
+            fill: #fff;
+            stroke: #eee;
+            stroke-width: 1px;
+        }
+        &:hover {
+            .point {
+                cursor: crosshair;
+                opacity: 1;
+            }
+        }
+    }
+    .element-connector {
+        fill: none;
+        &.active,
+        &:hover {
+            fill: none;
+        }
+        &.dashed {
+            stroke-dasharray: 3;
+        }
+    }
+    &.link,
+    &.link * {
+        cursor: crosshair;
+    }
+    &.move {
+        .element {
+            .point {
+                opacity: 0;
+            }
+        }
+    }
+}

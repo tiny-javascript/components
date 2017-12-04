@@ -1,12 +1,4 @@
 {
-    "compact": false,
-    "presets": [
-        "es2015-ie",
-        "stage-1",
-        "react"
-    ],
-    "plugins": [
-        "transform-object-rest-spread",
-        "transform-decorators-legacy"
-    ]
+    "presets": ["es2015-ie", "stage-1", "react"],
+    "plugins": ["transform-object-rest-spread", "transform-decorators-legacy"]
 }
