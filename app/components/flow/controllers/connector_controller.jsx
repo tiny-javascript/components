@@ -3,16 +3,21 @@ import Controller from './controller'
 import { calcConnectorPoints } from '../logics/point_logic'
 import { createPolyline } from '../logics/line_logic'
 import PolylineView from '../views/polyline_view'
+import { FONT_SIZE } from '../common/constants'
+import TextView from '../views/text_view'
 class ConnectorController extends Controller {
+    cls = 'element-connector'
     render() {
-        let { id, attribute, status, prevs, nexts } = this.props.element
+        let { id, attribute, prevs, nexts, status } = this.props.element
         let { x, y, width, height, text } = attribute
         let points = calcConnectorPoints(prevs, nexts, width, height, this.context.graph)
         let line = createPolyline(points)
+        status = status || 'default'
         return (
-            <g id={id} className={'element element-connector ' + status} transform={`translate(${x},${y})`}>
-                <PolylineView points={line} />
-                <text y="6">{text}</text>
+            <g id={id} className={this.getClassName()} transform={`translate(${x},${y})`}>
+                <PolylineView className="bg" points={line} />
+                <PolylineView className="line" points={line} markerEnd={`url(#triangle-${status})`} />
+                <TextView x={width / 2} y={height / 2} text={text} />
             </g>
         )
     }

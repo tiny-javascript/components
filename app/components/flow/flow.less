@@ -7,9 +7,11 @@
     }
     text {
         fill: #fff;
-        font-size: 12px;
         text-anchor: middle;
         stroke: none;
+    }
+    .marker {
+        fill: #4082e6;
     }
     .element {
         fill: #2d66b5;
@@ -19,6 +21,7 @@
         &.active,
         &:hover {
             fill: #398ded;
+            stroke: #398ded;
         }
         .point {
             opacity: 0;
@@ -34,8 +37,35 @@
             }
         }
     }
+    .element,
+    .marker {
+        &.error {
+            stroke: #f56464;
+            fill: #f56464;
+        }
+        &.process {
+            stroke: #16aef5;
+            fill: #16aef5;
+        }
+        &.success {
+            stroke: #02c28e;
+            fill: #02c28e;
+        }
+        &.pause {
+            stroke: #e6b065;
+            fill: #e6b065;
+        }
+        &.disabled {
+            stroke: #848e9c;
+            fill: #848e9c;
+        }
+    }
     .element-connector {
         fill: none;
+        .bg {
+            stroke: transparent;
+            stroke-width: 10px;
+        }
         &.active,
         &:hover {
             fill: none;
@@ -43,6 +73,12 @@
         &.dashed {
             stroke-dasharray: 3;
         }
+        &.error ， &.process， &.success ， &.pause ， &.disabled {
+            fill: none;
+        }
+    }
+    .icon {
+        font-family: 'iconfont' !important;
     }
     &.link,
     &.link * {

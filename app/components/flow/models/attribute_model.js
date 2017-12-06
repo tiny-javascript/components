@@ -9,6 +9,7 @@ class AttributeModel {
     width = SHAPE_WIDTH
     height = SHAPE_HEIGHT
     text = ''
+    lineBreak = false
 }
 
 export default AttributeModel

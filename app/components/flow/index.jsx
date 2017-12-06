@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
-import { ELEMENT_STATUS_ACTIVE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, GRAPH_STATUS_LINK, GRAPH_STATUS_EDIT, ELEMENT_TYPE_CONNECTOR, GRAPH_STATUS_MOVE } from './common/constants'
-import { parseGraphByJSONData, getElementId, getElementById, handleOptions, createMoveModel, calcNewAxis, getElementNodeByEvent } from './logics/graph_logic'
-import { isActiveElement, moveElement, createElement } from './logics/element_logic'
+import { ELEMENT_STATUS_ACTIVE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, GRAPH_STATUS_LINK, GRAPH_STATUS_EDIT, ELEMENT_TYPE_CONNECTOR, GRAPH_STATUS_MOVE, ELEMENT_TYPE_EVENT } from './common/constants'
+import { parseGraphByJSONData, handleOptions, createMoveModel, calcNewAxis, getElementByEvent } from './logics/graph_logic'
+import { isActiveElement, moveElement, createElement, deleteElement } from './logics/element_logic'
 import { drawConnector, handleDrawConnectorComplete } from './logics/line_logic'
 import ControllerFactory from './controllers/controller_factory'
 import MoveModel from './models/move_model'
@@ -16,14 +16,18 @@ class FlowContainer extends Component {
         data: PropTypes.string,
         height: PropTypes.string,
         readOnly: PropTypes.bool,
-        onBeforeRender: PropTypes.func
+        onBeforeRender: PropTypes.func,
+        onSelect: PropTypes.func,
+        onDelete: PropTypes.func
     }
     static defaultProps = {
         startText: 'start',
         overText: 'over',
         height: '500',
         readOnly: false,
-        onBeforeRender: () => {}
+        onBeforeRender: () => {},
+        onSelect: () => {},
+        onDelete: () => {}
     }
     state = {
         graph: null,
@@ -31,12 +35,22 @@ class FlowContainer extends Component {
     }
     move = null
     onClick(e) {
-        let element
-        let id = getElementId(e.nativeEvent)
-        if (id) {
-            element = getElementById(id, this.state.graph)
+        let element = getElementByEvent(e.nativeEvent, this.state.graph)
+        if (!element) {
+            this.props.onSelect(undefined)
+            this.setState({ selectedElements: [] })
+            return
         }
-        this.setState({ selectedElements: id ? [element] : [] })
+        let { selectedElements } = this.state
+        if (e.nativeEvent.shiftKey) {
+            selectedElements.push(element)
+        } else {
+            selectedElements = [element]
+        }
+        this.setState({ selectedElements })
+    }
+    onDoubleClick() {
+        this.props.onSelect(this.state.selectedElements[0])
     }
     onMouseDown(e) {
         let { graph } = this.state
@@ -75,11 +89,14 @@ class FlowContainer extends Component {
                 moveElement(this.move, graph, newAxis)
                 break
             case MOVE_LINE:
-                drawConnector(this.move)
+                drawConnector(this.move, graph)
                 break
         }
     }
     onMouseUp(e) {
+        if (!this.move) {
+            return
+        }
         let { graph } = this.state
         if (this.move.type == MOVE_LINE) {
             this.move.node.setAttribute('points', '')
@@ -91,6 +108,12 @@ class FlowContainer extends Component {
         }
         this.move = null
     }
+    onKeyUp(e) {
+        let code = e.keyCode || e.which
+        if (code == 8 || code == 46) {
+            this.delete()
+        }
+    }
     onWheel(e) {
         //e.preventDefault()
     }
@@ -99,18 +122,47 @@ class FlowContainer extends Component {
         let { x, y, status, height, scale } = graph
         let events = {
             onClick: this.onClick.bind(this),
+            onDoubleClick: this.onDoubleClick.bind(this),
             onMouseMove: this.onMouseMove.bind(this),
             onMouseDown: this.onMouseDown.bind(this),
             onMouseUp: this.onMouseUp.bind(this),
+            onKeyUp: this.onKeyUp.bind(this),
             onWheel: this.onWheel.bind(this)
+        }
+        let markerProps = {
+            viewBox: '0 0 10 10',
+            refX: 10,
+            refY: 5,
+            markerWidth: 6,
+            markerHeight: 6,
+            orient: 'auto'
         }
         return (
             <svg ref="svg" className={'graph ' + status} width="100%" height={height} tabIndex="-1" {...events}>
+                <defs>
+                    <marker id="triangle-default" className="marker" {...markerProps}>
+                        <path d="M 0 0 L 10 5 L 0 10 z" />
+                    </marker>
+                    <marker id="triangle-disabled" className="marker disabled" {...markerProps}>
+                        <path d="M 0 0 L 10 5 L 0 10 z" />
+                    </marker>
+                    <marker id="triangle-success" className="marker success" {...markerProps}>
+                        <path d="M 0 0 L 10 5 L 0 10 z" />
+                    </marker>
+                    <marker id="triangle-process" className="marker process" {...markerProps}>
+                        <path d="M 0 0 L 10 5 L 0 10 z" />
+                    </marker>
+                    <marker id="triangle-pause" className="marker pause" {...markerProps}>
+                        <path d="M 0 0 L 10 5 L 0 10 z" />
+                    </marker>
+                    <marker id="triangle-error" className="marker error" {...markerProps}>
+                        <path d="M 0 0 L 10 5 L 0 10 z" />
+                    </marker>
+                </defs>
                 <g ref="layer" className="layer" transform={`translate(${x},${y}),scale(${scale})`}>
                     {graph.elements.map(element => {
                         const Controller = ControllerFactory.create(element.type)
-                        element.status = isActiveElement(element, selectedElements) ? ELEMENT_STATUS_ACTIVE : ''
-                        return Controller ? <Controller key={element.id} element={element} /> : null
+                        return Controller ? <Controller key={element.id} element={element} active={isActiveElement(element, selectedElements)} /> : null
                     })}
                 </g>
                 <g id="flowGuideLine" className="element element-connector dashed">
@@ -122,10 +174,27 @@ class FlowContainer extends Component {
     getChildContext() {
         return { graph: this.state.graph }
     }
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.state != nextState
+    }
     componentWillMount() {
+        let { data, height, startText, overText } = this.props
         // 回传一个更新方法交给上一层，可以省略掉事件
         this.props.onBeforeRender(this.update.bind(this))
-        this.state.graph = parseGraphByJSONData(this.props.data, this.props.height)
+        this.state.graph = parseGraphByJSONData(data, height, startText, overText)
+    }
+    delete() {
+        let { selectedElements, graph } = this.state
+        if (!selectedElements.length) {
+            return
+        }
+        selectedElements.forEach(element => {
+            // 开始结束不能被删除
+            if (element.type !== ELEMENT_TYPE_EVENT) {
+                deleteElement(element, graph)
+            }
+        })
+        this.setState({ graph })
     }
     /**
      * 根据传递的选项数据进行更新

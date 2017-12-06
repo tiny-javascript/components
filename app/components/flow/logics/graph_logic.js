@@ -1,6 +1,6 @@
 import GraphModel from '../models/graph_model'
-import { OPTION_ELEMENT_CREATE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, POSITION_LEFT, ELEMENT_TYPE_EVENT, ELEMENT_TYPE_EVENT_START, ELEMENT_TYPE_EVENT_OVER } from '../common/constants'
-import { createElement } from './element_logic'
+import { OPTION_ELEMENT_CREATE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, POSITION_LEFT, ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_START, EVENT_SUBTYPE_OVER, OPTION_ELEMENT_UPDATE } from '../common/constants'
+import { createElement, modifyElement } from './element_logic'
 import MoveModel from '../models/move_model'
 import { calcPointFixedAxis } from './point_logic'
 import { createGuideLineNode } from './line_logic'
@@ -9,16 +9,21 @@ import { createGuideLineNode } from './line_logic'
  * 解析图形数据
  * @param {String} data JSON数据
  * @param {String} height 图形高度
+ * @param {String} startText 开始文本
+ * @param {String} overText 结算文本
  */
-function parseGraphByJSONData(data, height) {
+function parseGraphByJSONData(data, height, startText, overText) {
     let graph = new GraphModel()
+    let startElement, overElement
     graph.height = height
     // 如果没有解析数据，需要新增开始和结束节点
     if (!data) {
-        let startElement = createElement(ELEMENT_TYPE_EVENT, ELEMENT_TYPE_EVENT_START, [graph.height])
-        let overElement = createElement(ELEMENT_TYPE_EVENT, ELEMENT_TYPE_EVENT_OVER, [graph.height])
+        startElement = createElement(ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_START, [graph.height])
+        overElement = createElement(ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_OVER, [graph.height])
         graph.elements.push(startElement, overElement)
     }
+    startElement.attribute.text = startText
+    overElement.attribute.text = overText
     return graph
 }
 
@@ -67,16 +72,17 @@ function getElementByEvent(evt, graph) {
  */
 function handleOptions(options, graph) {
     options.forEach(option => {
-        let element = null
-        switch (option.type) {
+        let { type, data } = option
+        switch (type) {
             case OPTION_ELEMENT_CREATE:
-                element = createElement(option.data)
+                let element = createElement(data)
+                element.attribute.x = 10 - graph.x
+                element.attribute.y = 10 - graph.y
+                graph.elements.push(element)
                 break
-        }
-        if (element) {
-            element.attribute.x = 10 - graph.x
-            element.attribute.y = 10 - graph.y
-            graph.elements.push(element)
+            case OPTION_ELEMENT_UPDATE:
+                modifyElement(data, graph)
+                break
         }
     })
 }
@@ -108,6 +114,10 @@ function createMoveModel(evt, graph) {
     } else if (move.type == MOVE_LINE) {
         let axis = evt.target.dataset.axis.split(',').map(item => Number(item))
         let element = getElementByEvent(evt, graph)
+        // 连接器无法从结束点开始
+        if (element.type == ELEMENT_TYPE_EVENT && element.subType == EVENT_SUBTYPE_OVER) {
+            return null
+        }
         let { x, y } = calcPointFixedAxis(element, axis)
         let connectorNode = document.getElementById('flowGuideLine')
         connectorNode.setAttribute('transform', `translate(${x}, ${y})`)
@@ -147,6 +157,14 @@ function calcNewAxis(move, scale = 1) {
         x: source.x + offsetX,
         y: source.y + offsetY
     }
+}
+
+/**
+ * 闭环检查
+ * @param {Object} graph 图形信息
+ */
+function checkClosureLoop(graph) {
+    return false
 }
 
 export { parseGraphByJSONData, getElementId, getElementById, getElementByEvent, getElementNodeByEvent, handleOptions, createMoveModel, calcNewAxis }

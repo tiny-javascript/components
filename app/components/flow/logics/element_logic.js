@@ -1,5 +1,23 @@
 import ElementModel from '../models/element_model'
-import { ELEMENT_TYPE_EVENT_START, ELEMENT_TYPE_EVENT_OVER, ELEMENT_TYPE_EVENT, SHAPE_HEIGHT, ELEMENT_TYPE_PROCESS, ELEMENT_TYPE_CONNECTOR, ELEMENT_TYPE_DECISION, POSITION_LEFT, POSITION_RIGHT, POSITION_BOTTOM, POSITION_TOP } from '../common/constants'
+import {
+    EVENT_SUBTYPE_START,
+    EVENT_SUBTYPE_OVER,
+    ELEMENT_TYPE_EVENT,
+    SHAPE_HEIGHT,
+    ELEMENT_TYPE_PROCESS,
+    ELEMENT_TYPE_CONNECTOR,
+    ELEMENT_TYPE_DECISION,
+    POSITION_LEFT,
+    POSITION_RIGHT,
+    POSITION_BOTTOM,
+    POSITION_TOP,
+    FONT_SIZE,
+    FONT_FAMILY,
+    MIN_FONT_SIZE,
+    MAX_FONT_SIZE,
+    SHAPE_WIDTH,
+    LINE_HEIGHT
+} from '../common/constants'
 import { calcLinkPoints, calcPointFixedAxis } from './point_logic'
 import { getElementById } from './graph_logic'
 import { updateConnector } from './line_logic'
@@ -22,7 +40,7 @@ function createEventElement(subType, graphHeight, radius = 60) {
  * @param {int} graphHeight 图形高度
  */
 function createStartElement(graphHeight) {
-    let element = createEventElement(ELEMENT_TYPE_EVENT_START, graphHeight)
+    let element = createEventElement(EVENT_SUBTYPE_START, graphHeight)
     element.id = 'start'
     element.attribute.x = 50
     element.connectorPoints = calcLinkPoints(element.attribute)
@@ -33,7 +51,7 @@ function createStartElement(graphHeight) {
  * @param {int} graphHeight 图形高度
  */
 function createOverElement(graphHeight) {
-    let element = createEventElement(ELEMENT_TYPE_EVENT_OVER, graphHeight, 80)
+    let element = createEventElement(EVENT_SUBTYPE_OVER, graphHeight)
     element.id = 'over'
     element.attribute.x = 800
     element.connectorPoints = calcLinkPoints(element.attribute)
@@ -117,6 +135,87 @@ function handleConnectorInElementMove(graph, element, position) {
     }
 }
 
+/**
+ * 删除连接器
+ * @param {Object|String} connector 连接器数据，可为ID
+ * @param {Object} graph 图形数据
+ */
+function handleDeleteConnector(connector, graph) {
+    if (typeof connector === 'string') {
+        connector = getElementById(connector, graph)
+    }
+    let prevElement = getElementById(connector.prevs[0], graph)
+    let nextElement = getElementById(connector.nexts[0], graph)
+    // 在批量删除中可能会被提取删除了
+    if (prevElement) {
+        prevElement.nexts = prevElement.nexts.filter(id => id !== connector.id)
+    }
+    if (nextElement) {
+        nextElement.prevs = prevElement.prevs.filter(id => id !== connector.id)
+    }
+    graph.elements = graph.elements.filter(item => item.id !== connector.id)
+}
+
+/**
+ * 处理节点更新
+ * @param {Object} data 需要更新的数据
+ * @param {Object} graph 图形数据
+ */
+function handleModifyElement(data, graph) {
+    let { id, field, value } = data
+    if (!id) return
+    if (!field) return
+    let element = getElementById(id, graph)
+    // 文本额外处理
+    if (field == 'attribute.text') {
+        if (element.type !== ELEMENT_TYPE_CONNECTOR) {
+            handleElementTextChange(element, value)
+        }else{
+            element.attribute.text = value
+        }
+    }
+    if (field == 'subType') {
+        element.subType = Number(value)
+    }
+    if (field == 'status') {
+        element.status = value
+    }
+}
+
+/**
+ * 处理节点的文本变化
+ * @param {Element} element 节点数据
+ * @param {String} text 变化后的文本
+ */
+function handleElementTextChange(element, text) {
+    let textWidth = calcTextWidth(text)
+    let elementWidth = SHAPE_WIDTH
+    let elementHeigth = SHAPE_HEIGHT
+    element.attribute.text = text
+    element.attribute.lineBreak = false
+    if (textWidth > MIN_FONT_SIZE && textWidth <= MAX_FONT_SIZE) {
+        elementWidth = textWidth + 40
+    } else if (textWidth > MAX_FONT_SIZE) {
+        elementWidth = MAX_FONT_SIZE + 40
+        let texts = cutText(text, MAX_FONT_SIZE, FONT_SIZE)
+        elementHeigth = texts.length * LINE_HEIGHT + 40
+        element.attribute.lineBreak = true
+    }
+    element.attribute.width = elementWidth
+    element.attribute.height = elementHeigth
+    element.connectorPoints = calcLinkPoints(element.attribute)
+}
+/**
+ * 计算文本长度
+ * @param {String} text 文本
+ */
+function calcTextWidth(text) {
+    var canvas = document.createElement('canvas')
+    var context = canvas.getContext('2d')
+    context.font = FONT_SIZE + 'px ' + FONT_FAMILY
+    return context.measureText(text).width
+}
+
 // --------------------------------------------------下面是对外访问的函数-------------------------------------------------- //
 /**
  * 创建节点
@@ -128,9 +227,9 @@ function createElement(type, subType, options) {
     let element = null
     switch (type) {
         case ELEMENT_TYPE_EVENT:
-            if (subType == ELEMENT_TYPE_EVENT_START) {
+            if (subType == EVENT_SUBTYPE_START) {
                 element = createStartElement(...options)
-            } else if (subType == ELEMENT_TYPE_EVENT_OVER) {
+            } else if (subType == EVENT_SUBTYPE_OVER) {
                 element = createOverElement(...options)
             }
             break
@@ -175,14 +274,54 @@ function isActiveElement(element, selectedElements) {
 }
 
 /**
- * 计算文本长度
- * @param {String} text 文本
+ * 计算坐标在节点内位置
+ * @param {Object} axis 坐标
+ * @param {Element} element 节点数据
  */
-function calcTextWidth(text) {
-    var canvas = document.createElement('canvas')
-    var context = canvas.getContext('2d')
-    context.font = '12px Arial'
-    return context.measureText(text).width
+function calcPositionInElement(axis, element) {
+    let { x, y, width, height } = element.attribute
+    let inX = axis.x - x - width / 2
+    let inY = height / 2 - (axis.y - y)
+    let pi = Math.atan2(inY, inX)
+    if (Math.abs(pi) <= Math.atan2(0, -width / 2) && Math.abs(pi) >= Math.atan2(height / 2, -width / 2)) {
+        return POSITION_LEFT
+    } else if (Math.abs(pi) >= Math.atan2(0, width / 2) && Math.abs(pi) <= Math.atan2(height / 2, width / 2)) {
+        return POSITION_RIGHT
+    } else if (pi > Math.atan2(height / 2, width / 2) && pi < Math.atan2(height / 2, -width / 2)) {
+        return POSITION_TOP
+    } else if (pi > Math.atan2(-height / 2, -width / 2) && pi < Math.atan2(-height / 2, width / 2)) {
+        return POSITION_BOTTOM
+    }
+    return ''
+}
+
+/**
+ * 删除节点
+ * @param {Object} element 节点数据
+ * @param {Object} graph 图形数据
+ */
+function deleteElement(element, graph) {
+    if (element.type == ELEMENT_TYPE_CONNECTOR) {
+        handleDeleteConnector(element, graph)
+    } else {
+        // 清除跟该节点相连的线
+        element.prevs.concat(element.nexts).forEach(id => handleDeleteConnector(id, graph))
+        // 将节点从数组中删除
+        graph.elements = graph.elements.filter(item => item.id !== element.id)
+    }
+}
+
+/**
+ * 修改节点
+ * @param {Object|Array} data 需要要修改的信息
+ * @param {Object} graph 图形信息
+ */
+function modifyElement(data, graph) {
+    if (data instanceof Array) {
+        data.forEach(item => handleModifyElement(item, graph))
+    } else {
+        handleModifyElement(data, graph)
+    }
 }
 
 /**
@@ -209,32 +348,9 @@ function cutText(text, max, fontsize) {
         }
         if (i === text.length - 1) {
             end = i
-            result.push(str.substring(start, end + 1))
+            result.push(text.substring(start, end + 1))
         }
     }
     return result
 }
-
-/**
- * 计算坐标在节点内位置
- * @param {Object} axis 坐标
- * @param {Element} element 节点数据
- */
-function calcPositionInElement(axis, element) {
-    let { x, y, width, height } = element.attribute
-    let inX = axis.x - x - width / 2
-    let inY = height / 2 - (axis.y - y)
-    let pi = Math.atan2(inY, inX)
-    if (Math.abs(pi) <= Math.atan2(0, -width / 2) && Math.abs(pi) >= Math.atan2(height / 2, -width / 2)) {
-        return POSITION_LEFT
-    } else if (Math.abs(pi) >= Math.atan2(0, width / 2) && Math.abs(pi) <= Math.atan2(height / 2, width / 2)) {
-        return POSITION_RIGHT
-    } else if (pi > Math.atan2(height / 2, width / 2) && pi < Math.atan2(height / 2, -width / 2)) {
-        return POSITION_TOP
-    } else if (pi > Math.atan2(-height / 2, -width / 2) && pi < Math.atan2(-height / 2, width / 2)) {
-        return POSITION_BOTTOM
-    }
-    return ''
-}
-
-export { createElement, isActiveElement, moveElement, calcTextWidth, cutText, calcPositionInElement }
+export { createElement, isActiveElement, moveElement, deleteElement, modifyElement, calcPositionInElement, cutText }
