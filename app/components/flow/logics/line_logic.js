@@ -1,4 +1,4 @@
-import { calcConnectorPoints, calcLinePoints } from './point_logic'
+import { calcConnectorPoints, calcLinePoints, clacTextAxis } from './point_logic'
 import { getElementByEvent, calcNewAxis } from './graph_logic'
 import { calcPositionInElement, createElement } from './element_logic'
 import { ELEMENT_TYPE_CONNECTOR, EVENT_SUBTYPE_START, ELEMENT_TYPE_EVENT } from '../common/constants'
@@ -21,12 +21,13 @@ function updateConnector(connector, graph) {
     let { x, y, width, height } = attribute
     let points = calcConnectorPoints(prevs, nexts, width, height, graph)
     let line = createPolyline(points)
+    let textAxis = clacTextAxis(points)
     let node = document.getElementById(connector.id)
     let polylineNodes = node.querySelectorAll('polyline')
     let textNode = node.querySelector('text')
     node.setAttribute('transform', `translate(${x}, ${y})`)
-    textNode.setAttribute('x', width / 2)
-    textNode.setAttribute('y', height / 2)
+    textNode.setAttribute('x', textAxis.x)
+    textNode.setAttribute('y', textAxis.y)
     polylineNodes.forEach(item => item.setAttribute('points', line))
 }
 

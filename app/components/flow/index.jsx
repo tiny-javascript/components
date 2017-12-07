@@ -6,6 +6,14 @@ import { drawConnector, handleDrawConnectorComplete } from './logics/line_logic'
 import ControllerFactory from './controllers/controller_factory'
 import MoveModel from './models/move_model'
 import './flow.less'
+const markerProps = {
+    viewBox: '0 0 10 10',
+    refX: 10,
+    refY: 5,
+    markerWidth: 6,
+    markerHeight: 6,
+    orient: 'auto'
+}
 class FlowContainer extends Component {
     static childContextTypes = {
         graph: PropTypes.object
@@ -128,14 +136,6 @@ class FlowContainer extends Component {
             onMouseUp: this.onMouseUp.bind(this),
             onKeyUp: this.onKeyUp.bind(this),
             onWheel: this.onWheel.bind(this)
-        }
-        let markerProps = {
-            viewBox: '0 0 10 10',
-            refX: 10,
-            refY: 5,
-            markerWidth: 6,
-            markerHeight: 6,
-            orient: 'auto'
         }
         return (
             <svg ref="svg" className={'graph ' + status} width="100%" height={height} tabIndex="-1" {...events}>

@@ -151,7 +151,7 @@ function handleDeleteConnector(connector, graph) {
         prevElement.nexts = prevElement.nexts.filter(id => id !== connector.id)
     }
     if (nextElement) {
-        nextElement.prevs = prevElement.prevs.filter(id => id !== connector.id)
+        nextElement.prevs = nextElement.prevs.filter(id => id !== connector.id)
     }
     graph.elements = graph.elements.filter(item => item.id !== connector.id)
 }

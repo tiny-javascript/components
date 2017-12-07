@@ -551,4 +551,15 @@ function calcPointFixedAxis(element, axis) {
     }
 }
 
-export { calcDiamondPoints, calcLinkPoints, calcPointFixedAxis, calcConnectorPoints, calcLinePoints }
+/**
+ * 计算文本在线上的位置
+ * @param {Array} points 连接线的所有点
+ */
+function clacTextAxis(points) {
+    let center = Math.floor(points.length / 2) - 1
+    let x = points[center][0] + (points[center + 1][0] - points[center][0]) / 2
+    let y = points[center][1] + (points[center + 1][1] - points[center][1]) / 2 - 5
+    return { x, y }
+}
+
+export { calcDiamondPoints, calcLinkPoints, calcPointFixedAxis, calcConnectorPoints, calcLinePoints, clacTextAxis }
