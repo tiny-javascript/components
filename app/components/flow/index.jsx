@@ -50,7 +50,7 @@ class FlowContainer extends Component {
             return
         }
         let { selectedElements } = this.state
-        if (e.nativeEvent.shiftKey) {
+        if (e.nativeEvent.shiftKey && element.type !== ELEMENT_TYPE_CONNECTOR) {
             selectedElements.push(element)
         } else {
             selectedElements = [element]
@@ -87,7 +87,7 @@ class FlowContainer extends Component {
         let { end, type } = this.move
         end.x = e.clientX
         end.y = e.clientY
-        let newAxis = calcNewAxis(this.move)
+        let newAxis = calcNewAxis(this.move, graph.scale)
         switch (type) {
             case MOVE_VIEW:
                 graph = Object.assign({}, graph, newAxis)
@@ -97,7 +97,7 @@ class FlowContainer extends Component {
                 moveElement(this.move, graph, newAxis)
                 break
             case MOVE_LINE:
-                drawConnector(this.move, graph)
+                drawConnector(this.move)
                 break
         }
     }
@@ -123,7 +123,17 @@ class FlowContainer extends Component {
         }
     }
     onWheel(e) {
-        //e.preventDefault()
+        e.preventDefault()
+        let { graph } = this.state
+        let delta = e.nativeEvent.detail ? e.nativeEvent.detail * -120 : e.nativeEvent.wheelDelta
+        let wheel = delta / 120
+        if (delta < 0) {
+            graph.scale = graph.scale >= 1.5 ? 1.5 : graph.scale + 0.05
+        }
+        if (delta > 0) {
+            graph.scale = graph.scale <= 0.5 ? 0.5 : graph.scale - 0.05
+        }
+        this.setState({ graph })
     }
     render() {
         let { graph, selectedElements } = this.state
@@ -201,8 +211,8 @@ class FlowContainer extends Component {
      * @param {Array} options 选项数据
      */
     update(options) {
-        let { graph } = this.state
-        handleOptions(options, graph)
+        let { graph, selectedElements } = this.state
+        handleOptions(options, graph, selectedElements)
         this.setState({ graph })
     }
 }

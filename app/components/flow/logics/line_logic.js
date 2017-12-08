@@ -35,10 +35,13 @@ function updateConnector(connector, graph) {
  * 绘画连接线
  * @param {Object} move 移动数据
  */
-function drawConnector(move, graph) {
-    let ex = move.end.x - move.begin.x + graph.x
-    let ey = move.end.y - move.begin.y + graph.y
-    let points = createPolyline([[graph.x, graph.y], [ex - 5, ey + 5]])
+function drawConnector(move) {
+    let rect = document.querySelector('.graph').getBoundingClientRect()
+    let sx = move.begin.x - rect.left
+    let sy = move.begin.y - rect.top
+    let ex = sx + (move.end.x - move.begin.x)
+    let ey = sy + (move.end.y - move.begin.y)
+    let points = createPolyline([[sx, sy], [ex - 5, ey + 5]])
     move.node.setAttribute('points', points)
 }
 

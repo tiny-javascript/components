@@ -12,7 +12,12 @@ import {
     ELEMENT_STATUS_DISABLED,
     ELEMENT_STATUS_PROCESSS,
     ELEMENT_STATUS_SUCCESS,
-    ELEMENT_STATUS_PAUSE
+    ELEMENT_STATUS_PAUSE,
+    POSITION_LEFT,
+    POSITION_RIGHT,
+    POSITION_TOP,
+    POSITION_BOTTOM,
+    OPTION_ELEMENT_ALIGN
 } from '../../components/flow/common/constants'
 export default class FlowPage extends React.Component {
     state = {
@@ -44,6 +49,9 @@ export default class FlowPage extends React.Component {
     onStatusChange(e) {
         this.setState({ status: e.target.value })
     }
+    onAlign(position) {
+        this.updateFn([{ type: OPTION_ELEMENT_ALIGN, data: position }])
+    }
     onModify() {
         let { id, text, subType, status } = this.state
         let optionData = []
@@ -64,12 +72,24 @@ export default class FlowPage extends React.Component {
         return (
             <div className="card panel-primary">
                 <div className="card-body">
-                    <div className="btn-group mb-2">
+                    <div className="btn-group btn-group-sm mb-2">
                         <button type="button" className="btn btn-secondary btn-info" onClick={this.onAdd.bind(this, ELEMENT_TYPE_PROCESS)}>
                             添加流程节点
                         </button>
                         <button type="button" className="btn btn-secondary btn-success" onClick={this.onAdd.bind(this, ELEMENT_TYPE_DECISION)}>
                             添加判断节点
+                        </button>
+                        <button type="button" className="btn btn-secondary btn-warning" onClick={this.onAlign.bind(this, POSITION_LEFT)}>
+                            左对齐
+                        </button>
+                        <button type="button" className="btn btn-secondary btn-danger" onClick={this.onAlign.bind(this, POSITION_RIGHT)}>
+                            右对齐
+                        </button>
+                        <button type="button" className="btn btn-secondary btn-success" onClick={this.onAlign.bind(this, POSITION_TOP)}>
+                            上对齐
+                        </button>
+                        <button type="button" className="btn btn-secondary btn-info" onClick={this.onAlign.bind(this, POSITION_BOTTOM)}>
+                            下对齐
                         </button>
                     </div>
                     <Flow onBeforeRender={this.onBeforeRender.bind(this)} onSelect={this.onSelect.bind(this)} />

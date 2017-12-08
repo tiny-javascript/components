@@ -2,7 +2,7 @@ import React from 'react'
 import { createHashHistory } from 'history'
 import { Router, Route, IndexRoute, useRouterHistory } from 'react-router'
 import Layout from './layout'
-import FlowPage from './pages/flow/Index'
+import FlowPage from './pages/flow'
 const appHistory = useRouterHistory(createHashHistory)({ queryKey: false })
 export default (
     <Router history={appHistory}>

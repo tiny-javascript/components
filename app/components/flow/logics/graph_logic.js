@@ -1,6 +1,6 @@
 import GraphModel from '../models/graph_model'
-import { OPTION_ELEMENT_CREATE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, POSITION_LEFT, ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_START, EVENT_SUBTYPE_OVER, OPTION_ELEMENT_UPDATE } from '../common/constants'
-import { createElement, modifyElement } from './element_logic'
+import { OPTION_ELEMENT_CREATE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, POSITION_LEFT, ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_START, EVENT_SUBTYPE_OVER, OPTION_ELEMENT_UPDATE, OPTION_ELEMENT_ALIGN } from '../common/constants'
+import { createElement, modifyElement, alignElements } from './element_logic'
 import MoveModel from '../models/move_model'
 import { calcPointFixedAxis } from './point_logic'
 import { createGuideLineNode } from './line_logic'
@@ -69,8 +69,9 @@ function getElementByEvent(evt, graph) {
  * 处理选项数据
  * @param {Array} options 选项数据
  * @param {Object} graph 图形数据
+ * @param {Array} selectedElements 选中的节点
  */
-function handleOptions(options, graph) {
+function handleOptions(options, graph, selectedElements) {
     options.forEach(option => {
         let { type, data } = option
         switch (type) {
@@ -82,6 +83,9 @@ function handleOptions(options, graph) {
                 break
             case OPTION_ELEMENT_UPDATE:
                 modifyElement(data, graph)
+                break
+            case OPTION_ELEMENT_ALIGN:
+                alignElements(selectedElements, data, graph)
                 break
         }
     })
@@ -119,9 +123,7 @@ function createMoveModel(evt, graph) {
             return null
         }
         let { x, y } = calcPointFixedAxis(element, axis)
-        let connectorNode = document.getElementById('flowGuideLine')
-        connectorNode.setAttribute('transform', `translate(${x}, ${y})`)
-        move.node = connectorNode.querySelector('polyline')
+        move.node = document.getElementById('flowGuideLine').querySelector('polyline')
         // 连线开始节点
         move.source = { x, y, element, position: evt.target.dataset.paramter }
         // 连线模拟的结束节点
@@ -154,8 +156,8 @@ function calcNewAxis(move, scale = 1) {
     let offsetX = end.x - begin.x
     let offsetY = end.y - begin.y
     return {
-        x: source.x + offsetX,
-        y: source.y + offsetY
+        x: source.x + offsetX * (1 / scale),
+        y: source.y + offsetY * (1 / scale)
     }
 }
 

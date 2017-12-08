@@ -170,7 +170,7 @@ function handleModifyElement(data, graph) {
     if (field == 'attribute.text') {
         if (element.type !== ELEMENT_TYPE_CONNECTOR) {
             handleElementTextChange(element, value)
-        }else{
+        } else {
             element.attribute.text = value
         }
     }
@@ -256,7 +256,7 @@ function moveElement(move, graph, newAxis) {
     let { x, y } = newAxis
     let { node, source } = move
     if (source.element.type == ELEMENT_TYPE_CONNECTOR) return
-    node.setAttribute('transform', `translate(${x}, ${y})`)
+    if (node) node.setAttribute('transform', `translate(${x}, ${y})`)
     source.element.attribute.x = x
     source.element.attribute.y = y
     // 更新所有连接器
@@ -353,4 +353,26 @@ function cutText(text, max, fontsize) {
     }
     return result
 }
-export { createElement, isActiveElement, moveElement, deleteElement, modifyElement, calcPositionInElement, cutText }
+
+/**
+ * 对齐节点
+ * @param {Array} elements 节点集合
+ * @param {String} position 对齐线
+ */
+function alignElements(elements, position, graph) {
+    if (elements.length < 2) return
+    let axis = position == POSITION_LEFT || position == POSITION_RIGHT ? 'x' : 'y'
+    let operation = position == POSITION_LEFT || position == POSITION_TOP ? '<' : '>'
+    let baseElement = elements.reduce((prev, curr) => {
+        return (operation == '<' && prev.attribute[axis] <= curr.attribute[axis]) || (operation == '>' && prev.attribute[axis] >= curr.attribute[axis]) ? prev : curr
+    }, elements[0])
+    elements.forEach(element => {
+        if (element.id != baseElement.id) {
+            element.attribute[axis] = baseElement.attribute[axis]
+            // 模拟移动对象
+            let move = { source: { element } }
+            moveElement(move, graph, { x: element.attribute.x, y: element.attribute.y })
+        }
+    })
+}
+export { createElement, isActiveElement, moveElement, deleteElement, modifyElement, calcPositionInElement, cutText, alignElements }

@@ -66,16 +66,22 @@
             stroke: transparent;
             stroke-width: 10px;
         }
-        &.active,
-        &:hover {
-            fill: none;
-        }
+
         &.dashed {
             stroke-dasharray: 3;
         }
-        &.error ， &.process， &.success ， &.pause ， &.disabled {
+        &:hover,
+        &.active,
+        &.error,
+        &.process,
+        &.success,
+        &.pause,
+        &.disabled {
             fill: none;
         }
+    }
+    .animation {
+        fill: rgba(255, 255, 255, 0.5);
     }
     .icon {
         font-family: 'iconfont' !important;
