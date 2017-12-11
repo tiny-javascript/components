@@ -162,6 +162,22 @@ function calcNewAxis(move, scale = 1) {
 }
 
 /**
+ * 图形缩放
+ * @param {Object} evt 鼠标事件
+ * @param {Object} graph 图形数据
+ */
+function zoom(evt, graph) {
+    let delta = evt.detail ? evt.detail * -120 : evt.wheelDelta
+    let wheel = delta / 120
+    if (delta < 0) {
+        graph.scale = graph.scale >= 1.5 ? 1.5 : graph.scale + 0.01
+    }
+    if (delta > 0) {
+        graph.scale = graph.scale <= 0.5 ? 0.5 : graph.scale - 0.01
+    }
+}
+
+/**
  * 闭环检查
  * @param {Object} graph 图形信息
  */
@@ -169,4 +185,4 @@ function checkClosureLoop(graph) {
     return false
 }
 
-export { parseGraphByJSONData, getElementId, getElementById, getElementByEvent, getElementNodeByEvent, handleOptions, createMoveModel, calcNewAxis }
+export { parseGraphByJSONData, getElementId, getElementById, getElementByEvent, getElementNodeByEvent, handleOptions, createMoveModel, calcNewAxis, zoom }

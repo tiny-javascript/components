@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { POINT_RADIUS, FONT_SIZE, MAX_FONT_SIZE } from '../common/constants'
+import { POINT_RADIUS, FONT_SIZE, MAX_FONT_SIZE, GRAPH_STATUS_READONLY } from '../common/constants'
 import { calcLinkPoints } from '../logics/point_logic'
 import ElementModel from '../models/element_model'
 import CircleView from '../views/circle_view'
@@ -30,6 +30,9 @@ class Controller extends Component {
         return cls.join(' ')
     }
     renderConnectorPoint() {
+        if (this.context.graph.status == GRAPH_STATUS_READONLY) {
+            return null
+        }
         return this.props.element.connectorPoints.map((point, index) => {
             let [x, y] = point.axis
             return <CircleView className="point" key={index} x={x} y={y} radius={POINT_RADIUS} parameter={point.position} />

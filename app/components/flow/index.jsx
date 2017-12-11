@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
-import { ELEMENT_STATUS_ACTIVE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, GRAPH_STATUS_LINK, GRAPH_STATUS_EDIT, ELEMENT_TYPE_CONNECTOR, GRAPH_STATUS_MOVE, ELEMENT_TYPE_EVENT } from './common/constants'
-import { parseGraphByJSONData, handleOptions, createMoveModel, calcNewAxis, getElementByEvent } from './logics/graph_logic'
+import { ELEMENT_STATUS_ACTIVE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, GRAPH_STATUS_LINK, GRAPH_STATUS_EDIT, ELEMENT_TYPE_CONNECTOR, GRAPH_STATUS_MOVE, ELEMENT_TYPE_EVENT, GRAPH_STATUS_READONLY } from './common/constants'
+import { parseGraphByJSONData, handleOptions, createMoveModel, calcNewAxis, getElementByEvent, zoom } from './logics/graph_logic'
 import { isActiveElement, moveElement, createElement, deleteElement } from './logics/element_logic'
 import { drawConnector, handleDrawConnectorComplete } from './logics/line_logic'
 import ControllerFactory from './controllers/controller_factory'
@@ -43,22 +43,36 @@ class FlowContainer extends Component {
     }
     move = null
     onClick(e) {
-        let element = getElementByEvent(e.nativeEvent, this.state.graph)
-        if (!element) {
-            this.props.onSelect(undefined)
-            this.setState({ selectedElements: [] })
+        if (this.move && this.move.active) {
             return
         }
-        let { selectedElements } = this.state
-        if (e.nativeEvent.shiftKey && element.type !== ELEMENT_TYPE_CONNECTOR) {
-            selectedElements.push(element)
+        let { selectedElements, graph } = this.state
+        let element = getElementByEvent(e.nativeEvent, graph)
+        if (element) {
+            if (e.nativeEvent.shiftKey && element.type !== ELEMENT_TYPE_CONNECTOR) {
+                if (selectedElements.findIndex(ele => ele.id == element.id) !== -1) {
+                    selectedElements = selectedElements.filter(ele => ele.id != element.id)
+                } else {
+                    selectedElements.push(element)
+                }
+            } else {
+                selectedElements = [element]
+            }
         } else {
-            selectedElements = [element]
+            selectedElements = []
+            this.props.onSelect(undefined)
         }
         this.setState({ selectedElements })
     }
     onDoubleClick() {
-        this.props.onSelect(this.state.selectedElements[0])
+        let element = this.state.selectedElements[0]
+        if (!element) {
+            return
+        }
+        if (element.type == ELEMENT_TYPE_EVENT) {
+            element = undefined
+        }
+        this.props.onSelect(element)
     }
     onMouseDown(e) {
         let { graph } = this.state
@@ -111,7 +125,7 @@ class FlowContainer extends Component {
             handleDrawConnectorComplete(e.nativeEvent, this.move, graph)
         }
         if (graph.status != GRAPH_STATUS_EDIT) {
-            graph.status = GRAPH_STATUS_EDIT
+            graph.status = this.props.readOnly ? GRAPH_STATUS_READONLY : GRAPH_STATUS_EDIT
             this.setState({ graph })
         }
         this.move = null
@@ -125,14 +139,7 @@ class FlowContainer extends Component {
     onWheel(e) {
         e.preventDefault()
         let { graph } = this.state
-        let delta = e.nativeEvent.detail ? e.nativeEvent.detail * -120 : e.nativeEvent.wheelDelta
-        let wheel = delta / 120
-        if (delta < 0) {
-            graph.scale = graph.scale >= 1.5 ? 1.5 : graph.scale + 0.05
-        }
-        if (delta > 0) {
-            graph.scale = graph.scale <= 0.5 ? 0.5 : graph.scale - 0.05
-        }
+        zoom(e.nativeEvent, graph)
         this.setState({ graph })
     }
     render() {
@@ -188,13 +195,17 @@ class FlowContainer extends Component {
         return this.state != nextState
     }
     componentWillMount() {
-        let { data, height, startText, overText } = this.props
+        let { data, height, startText, overText, readOnly } = this.props
         // 回传一个更新方法交给上一层，可以省略掉事件
         this.props.onBeforeRender(this.update.bind(this))
         this.state.graph = parseGraphByJSONData(data, height, startText, overText)
+        this.state.graph.status = readOnly ? GRAPH_STATUS_READONLY : GRAPH_STATUS_EDIT
     }
     delete() {
         let { selectedElements, graph } = this.state
+        if (this.props.readOnly) {
+            return
+        }
         if (!selectedElements.length) {
             return
         }

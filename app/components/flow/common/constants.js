@@ -3,7 +3,9 @@ export const SHAPE_WIDTH = 120
 export const SHAPE_HEIGHT = 60
 export const SHAPE_WIDTH_MAX = 240
 export const MIN_GAP = 20 // 线与节点的最小间隔
+export const RECT_RADIUS = 3
 export const POINT_RADIUS = 3
+export const BUTTON_LAYER_WIDTH = 30
 // 字体
 export const FONT_SIZE = 12
 export const FONT_FAMILY = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
@@ -41,10 +43,9 @@ export const MOVE_VIEW = 'MOVE_VIEW' // 画面移动
 export const MOVE_LINE = 'MOVE_LINE' // 连线移动
 // 图标类型
 export const ICON_REDO = 'redo'
-export const ICON_CONTINUE = 'continue'
 export const ICON_SKIP = 'skip'
-export const ICON_INTERRUPT = 'interrupt'
-export const ICON_CHECK_SCRIPT = 'checkScript'
+export const ICON_ABORT = 'abort'
+export const ICON_AUDIT = 'audit'
 export const ICON_WORKFLOW = 'workflow'
 export const ICON_ACTION = 'action'
 export const ICON_MANUAL = 'manual'
@@ -53,8 +54,16 @@ export const POSITION_TOP = 'top'
 export const POSITION_BOTTOM = 'bottom'
 export const POSITION_LEFT = 'left'
 export const POSITION_RIGHT = 'right'
+export const POSITION_CENTER_VERTICAL = 'center-vertical'
+export const POSITION_CENTER_HORIZONTAL = 'center-horizontal'
 // 参数
 export const OPTION_ELEMENT_CREATE = 'create'
 export const OPTION_ELEMENT_DELETE = 'delete'
 export const OPTION_ELEMENT_UPDATE = 'update'
 export const OPTION_ELEMENT_ALIGN = 'align'
+// 按钮类型
+export const BUTTON_TYPE_REDO = 11 // 重做按钮
+export const BUTTON_TYPE_SKIP = 12 // 跳过按钮
+export const BUTTON_TYPE_ABORT = 13 // 中断按钮
+export const BUTTON_TYPE_AUDIT = 14 // 审核按钮
+export const BUTTON_TYPE_HANDLE = 15 // 人工按钮

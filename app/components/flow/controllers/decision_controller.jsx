@@ -7,11 +7,11 @@ class DecisionController extends Controller {
     cls = 'element-decision'
     render() {
         let { id, attribute } = this.props.element
-        let { x, y, text } = attribute
+        let { x, y } = attribute
         return (
             <g id={id} className={this.getClassName()} transform={`translate(${x},${y})`}>
                 <PolygonView points={this.points} />
-                <text y="6">{text}</text>
+                {this.renderText()}
                 {this.renderConnectorPoint()}
             </g>
         )
@@ -19,6 +19,10 @@ class DecisionController extends Controller {
     componentWillMount() {
         this.points = calcDiamondPoints(this.props.element.attribute)
     }
+    componentWillUpdate(nextProps, nextState) {
+        this.points = calcDiamondPoints(nextProps.element.attribute)
+    }
+    
 }
 
 export default DecisionController

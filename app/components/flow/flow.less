@@ -60,6 +60,25 @@
             fill: #848e9c;
         }
     }
+    .element-process {
+        .button-layer {
+            fill: rgba(0, 0, 0, 0.5);
+            stroke-width: 0;
+            .button-icon {
+                text {
+                    opacity: 0.8;
+                    transform: scale(0.9);
+                    transition: opacity .2s, transform .2s;
+                }
+                &:hover {
+                    text {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+            }
+        }
+    }
     .element-connector {
         fill: none;
         .bg {

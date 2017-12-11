@@ -35,7 +35,7 @@ var config = {
 if (process.env.NODE_ENV == 'dev') {
     config.plugins = [new webpack.HotModuleReplacementPlugin()]
     config.devtool = 'eval'
-    config.devServer = { hot: true, port: 9090, inline: true, compress: true }
+    config.devServer = { host:'0.0.0.0', hot: true, port: 9090, inline: true, compress: true }
 } else {
     config.plugins = [new webpack.optimize.UglifyJsPlugin({ minimize: true, sourceMap: false, warnings: false })]
 }

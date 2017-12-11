@@ -16,7 +16,9 @@ import {
     MIN_FONT_SIZE,
     MAX_FONT_SIZE,
     SHAPE_WIDTH,
-    LINE_HEIGHT
+    LINE_HEIGHT,
+    POSITION_CENTER_VERTICAL,
+    POSITION_CENTER_HORIZONTAL
 } from '../common/constants'
 import { calcLinkPoints, calcPointFixedAxis } from './point_logic'
 import { getElementById } from './graph_logic'
@@ -179,6 +181,9 @@ function handleModifyElement(data, graph) {
     }
     if (field == 'status') {
         element.status = value
+    }
+    if (field == 'buttons') {
+        element.buttons = value
     }
 }
 
@@ -361,18 +366,55 @@ function cutText(text, max, fontsize) {
  */
 function alignElements(elements, position, graph) {
     if (elements.length < 2) return
-    let axis = position == POSITION_LEFT || position == POSITION_RIGHT ? 'x' : 'y'
-    let operation = position == POSITION_LEFT || position == POSITION_TOP ? '<' : '>'
-    let baseElement = elements.reduce((prev, curr) => {
-        return (operation == '<' && prev.attribute[axis] <= curr.attribute[axis]) || (operation == '>' && prev.attribute[axis] >= curr.attribute[axis]) ? prev : curr
-    }, elements[0])
-    elements.forEach(element => {
-        if (element.id != baseElement.id) {
-            element.attribute[axis] = baseElement.attribute[axis]
-            // 模拟移动对象
-            let move = { source: { element } }
-            moveElement(move, graph, { x: element.attribute.x, y: element.attribute.y })
+    let axis = position == POSITION_LEFT || position == POSITION_RIGHT || position == POSITION_CENTER_HORIZONTAL ? 'x' : 'y'
+    let bx = 0,
+        by = 0,
+        be = null
+    // 居中对齐
+    if (position == POSITION_CENTER_VERTICAL || position == POSITION_CENTER_HORIZONTAL) {
+        let min = elements.reduce((prev, curr) => (curr.attribute[axis] <= prev ? curr.attribute[axis] : prev), elements[0].attribute[axis])
+        let max = elements.reduce((prev, curr) => (curr.attribute[axis] >= prev ? curr.attribute[axis] : prev), elements[0].attribute[axis])
+        if (axis == 'x') {
+            bx = min + (max - min) / 2
         }
+        if (axis == 'y') {
+            by = min + (max - min) / 2
+        }
+    } else {
+        let operation = position == POSITION_LEFT || position == POSITION_TOP ? '<' : '>'
+        be = elements.reduce((prev, curr) => {
+            if (operation == '<') {
+                return prev.attribute[axis] <= curr.attribute[axis] ? prev : curr
+            } else {
+                let rect = axis == 'x' ? 'width' : 'height'
+                return prev.attribute[axis] + prev.attribute[rect] >= curr.attribute[axis] + curr[rect] ? prev : curr
+            }
+        }, elements[0])
+    }
+    elements.forEach(element => {
+        let x = 0,
+            y = 0
+        if (axis == 'x') {
+            if (position == POSITION_CENTER_HORIZONTAL) {
+                x = bx - element.attribute.width / 2
+            } else if (position == POSITION_RIGHT) {
+                x = be.attribute.x + be.attribute.width - element.attribute.width
+            } else {
+                x = be.attribute.x
+            }
+            y = element.attribute.y
+        } else if (axis == 'y') {
+            x = element.attribute.x
+            if (position == POSITION_CENTER_VERTICAL) {
+                y = by - element.attribute.height / 2
+            } else if (position == POSITION_BOTTOM) {
+                y = be.attribute.y + be.attribute.height - element.attribute.height
+            } else {
+                y = be.attribute.y
+            }
+        }
+        // 模拟节点移动
+        moveElement({ source: { element } }, graph, { x, y })
     })
 }
 export { createElement, isActiveElement, moveElement, deleteElement, modifyElement, calcPositionInElement, cutText, alignElements }

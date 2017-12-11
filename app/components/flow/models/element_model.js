@@ -17,6 +17,8 @@ class ElementModel {
     connectorPoints = []
     // 属性
     attribute = new AttributeModel()
+    // 按钮
+    buttons = []
 }
 
 export default ElementModel
