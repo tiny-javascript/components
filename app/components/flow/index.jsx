@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import { ELEMENT_STATUS_ACTIVE, MOVE_VIEW, MOVE_ELEMENT, MOVE_LINE, GRAPH_STATUS_LINK, GRAPH_STATUS_EDIT, ELEMENT_TYPE_CONNECTOR, GRAPH_STATUS_MOVE, ELEMENT_TYPE_EVENT, GRAPH_STATUS_READONLY } from './common/constants'
-import { parseGraphByJSONData, handleOptions, createMoveModel, calcNewAxis, getElementByEvent, zoom } from './logics/graph_logic'
+import { parseGraphByJSONData, handleElementOptions, createMoveModel, calcNewAxis, getElementByEvent, zoom, validateGraph, updateGraph, handleGraphOption, reset } from './logics/graph_logic'
 import { isActiveElement, moveElement, createElement, deleteElement } from './logics/element_logic'
 import { drawConnector, handleDrawConnectorComplete } from './logics/line_logic'
 import ControllerFactory from './controllers/controller_factory'
@@ -133,6 +133,7 @@ class FlowContainer extends Component {
     onKeyUp(e) {
         let code = e.keyCode || e.which
         if (code == 8 || code == 46) {
+            e.preventDefault()
             this.delete()
         }
     }
@@ -209,21 +210,23 @@ class FlowContainer extends Component {
         if (!selectedElements.length) {
             return
         }
-        selectedElements.forEach(element => {
-            // 开始结束不能被删除
-            if (element.type !== ELEMENT_TYPE_EVENT) {
-                deleteElement(element, graph)
-            }
-        })
+        let elements = selectedElements.filter((element = element.type !== ELEMENT_TYPE_EVENT))
+        elements.forEach(element => deleteElement(element, graph))
+        reset(graph)
+        this.props.onDelete(elements)
         this.setState({ graph })
     }
     /**
      * 根据传递的选项数据进行更新
-     * @param {Array} options 选项数据
+     * @param {Array|Object} option 选项数据,如果为数组则操作节点
      */
-    update(options) {
+    update(option) {
         let { graph, selectedElements } = this.state
-        handleOptions(options, graph, selectedElements)
+        if (option instanceof Array) {
+            handleElementOptions(option, graph, selectedElements)
+        } else {
+            handleGraphOption(option, graph)
+        }
         this.setState({ graph })
     }
 }

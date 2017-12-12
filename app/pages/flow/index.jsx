@@ -24,7 +24,8 @@ import {
     BUTTON_TYPE_HANDLE,
     BUTTON_TYPE_AUDIT,
     POSITION_CENTER_VERTICAL,
-    POSITION_CENTER_HORIZONTAL
+    POSITION_CENTER_HORIZONTAL,
+    OPTION_GRAPH_VALIDATE
 } from '../../components/flow/common/constants'
 export default class FlowPage extends React.Component {
     state = {
@@ -108,6 +109,9 @@ export default class FlowPage extends React.Component {
         }
         this.updateFn([{ type: OPTION_ELEMENT_UPDATE, data: optionData }])
     }
+    onValidate() {
+        this.updateFn({ type: OPTION_GRAPH_VALIDATE })
+    }
     render() {
         let { id, text, subType, status, buttons } = this.state
         return (
@@ -137,6 +141,9 @@ export default class FlowPage extends React.Component {
                         </button>
                         <button type="button" className="btn btn-secondary btn-success" onClick={this.onAlign.bind(this, POSITION_BOTTOM)}>
                             下对齐
+                        </button>
+                        <button type="button" className="btn btn-secondary btn-danger" onClick={this.onValidate.bind(this)}>
+                            校验图形
                         </button>
                     </div>
                     <Flow onBeforeRender={this.onBeforeRender.bind(this)} onSelect={this.onSelect.bind(this)} />

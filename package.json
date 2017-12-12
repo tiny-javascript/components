@@ -4,6 +4,7 @@
     "description": "component",
     "main": "index.html",
     "scripts": {
+        "dll": "./node_modules/.bin/webpack --config webpack.dll.config.js --progress",
         "dev": "NODE_ENV=dev ./node_modules/.bin/webpack-dev-server --progress",
         "build": "NODE_ENV=prod ./node_modules/.bin/webpack --progress"
     },
@@ -14,6 +15,7 @@
     "license": "ISC",
     "dependencies": {
         "babel-polyfill": "^6.23.0",
+        "es6-shim": "^0.35.3",
         "history": "^1.13.1",
         "react": "^15.2.1",
         "react-dom": "^15.2.1",

@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+var manifest = require('./manifest.json')
 var node_modules = path.resolve(__dirname, './node_modules')
 var config = {
     context: path.resolve(__dirname, './'),
@@ -29,15 +30,16 @@ var config = {
                 exclude: [/node_modules/]
             }
         ]
-    }
+    },
+    plugins: [new webpack.DllReferencePlugin({ context: __dirname, manifest: manifest })]
 }
 
 if (process.env.NODE_ENV == 'dev') {
-    config.plugins = [new webpack.HotModuleReplacementPlugin()]
+    config.plugins.push(new webpack.HotModuleReplacementPlugin())
     config.devtool = 'eval'
-    config.devServer = { host:'0.0.0.0', hot: true, port: 9090, inline: true, compress: true }
+    config.devServer = { host: '0.0.0.0', hot: true, port: 9090, inline: true, compress: true }
 } else {
-    config.plugins = [new webpack.optimize.UglifyJsPlugin({ minimize: true, sourceMap: false, warnings: false })]
+    config.plugins.push(new webpack.optimize.UglifyJsPlugin({ minimize: true, sourceMap: false, warnings: false }))
 }
 
 module.exports = config

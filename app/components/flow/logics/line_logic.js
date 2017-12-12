@@ -9,6 +9,7 @@ import { ELEMENT_TYPE_CONNECTOR, EVENT_SUBTYPE_START, ELEMENT_TYPE_EVENT } from 
  */
 function createPolyline(points) {
     return points.map(item => item.join(',')).join(' ')
+    // return points.map((item, index) => (index ? 'L' : 'M') + item.join(',')).join('')
 }
 
 /**
@@ -28,7 +29,9 @@ function updateConnector(connector, graph) {
     node.setAttribute('transform', `translate(${x}, ${y})`)
     textNode.setAttribute('x', textAxis.x)
     textNode.setAttribute('y', textAxis.y)
-    polylineNodes.forEach(item => item.setAttribute('points', line))
+    for (let i = 0; i < polylineNodes.length; ++i) {
+        polylineNodes[i].setAttribute('points', line)
+    }
 }
 
 /**
@@ -64,6 +67,16 @@ function handleDrawConnectorComplete(evt, move, graph) {
     }
     // 连接器无法在开始点结束
     if (target.type == ELEMENT_TYPE_EVENT && target.subType == EVENT_SUBTYPE_START) {
+        return
+    }
+    // 检查节点间循环
+    let checkLoop = source.prevs.reduce((prev, curr) => prev || target.nexts.indexOf(curr) != -1, false)
+    if (checkLoop) {
+        return
+    }
+    // 检查节点间重复
+    let checkRepeat = source.nexts.reduce((prev, curr) => prev || target.prevs.indexOf(curr) != -1, false)
+    if (checkRepeat) {
         return
     }
     let sourcePosition = move.source.position

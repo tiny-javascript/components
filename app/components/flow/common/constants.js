@@ -57,13 +57,18 @@ export const POSITION_RIGHT = 'right'
 export const POSITION_CENTER_VERTICAL = 'center-vertical'
 export const POSITION_CENTER_HORIZONTAL = 'center-horizontal'
 // 参数
-export const OPTION_ELEMENT_CREATE = 'create'
-export const OPTION_ELEMENT_DELETE = 'delete'
-export const OPTION_ELEMENT_UPDATE = 'update'
-export const OPTION_ELEMENT_ALIGN = 'align'
+export const OPTION_ELEMENT_CREATE = 'element_create'
+export const OPTION_ELEMENT_DELETE = 'element_delete'
+export const OPTION_ELEMENT_UPDATE = 'element_update'
+export const OPTION_ELEMENT_ALIGN = 'element_align'
+export const OPTION_GRAPH_UPDATE = 'graph_update'
+export const OPTION_GRAPH_VALIDATE = 'graph_validate'
 // 按钮类型
 export const BUTTON_TYPE_REDO = 11 // 重做按钮
 export const BUTTON_TYPE_SKIP = 12 // 跳过按钮
 export const BUTTON_TYPE_ABORT = 13 // 中断按钮
 export const BUTTON_TYPE_AUDIT = 14 // 审核按钮
 export const BUTTON_TYPE_HANDLE = 15 // 人工按钮
+// 错误类型 
+export const ERROR_LOOP_CLOSURE = 'ERROR_LOOP_CLOSURE' // 循环错误
+export const ERROR_LINK_BREAK = 'ERROR_LINK_BREAK' // 连接断开错误

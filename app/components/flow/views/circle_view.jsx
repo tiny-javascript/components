@@ -16,7 +16,7 @@ class CircleView extends Component {
     }
     render() {
         let { x, y, radius, className, parameter } = this.props
-        return <circle className={className} cx={x} cy={y} r={radius} data-axis={[x, y]} data-paramter={parameter} />
+        return <circle className={className} cx={x} cy={y} r={radius} data-axis={[x, y]} data-parameter={parameter} />
     }
 }
 
