@@ -49,7 +49,7 @@ class FlowContainer extends Component {
         let { selectedElements, graph } = this.state
         let element = getElementByEvent(e.nativeEvent, graph)
         if (element) {
-            if (e.nativeEvent.shiftKey && element.type !== ELEMENT_TYPE_CONNECTOR) {
+            if ((e.nativeEvent.shiftKey || e.nativeEvent.ctrlKey) && element.type !== ELEMENT_TYPE_CONNECTOR) {
                 if (selectedElements.findIndex(ele => ele.id == element.id) !== -1) {
                     selectedElements = selectedElements.filter(ele => ele.id != element.id)
                 } else {
@@ -126,6 +126,7 @@ class FlowContainer extends Component {
         }
         if (graph.status != GRAPH_STATUS_EDIT) {
             graph.status = this.props.readOnly ? GRAPH_STATUS_READONLY : GRAPH_STATUS_EDIT
+            reset(graph)
             this.setState({ graph })
         }
         this.move = null
@@ -198,7 +199,7 @@ class FlowContainer extends Component {
     componentWillMount() {
         let { data, height, startText, overText, readOnly } = this.props
         // 回传一个更新方法交给上一层，可以省略掉事件
-        this.props.onBeforeRender(this.update.bind(this))
+        this.props.onBeforeRender(this.handle.bind(this))
         this.state.graph = parseGraphByJSONData(data, height, startText, overText)
         this.state.graph.status = readOnly ? GRAPH_STATUS_READONLY : GRAPH_STATUS_EDIT
     }
@@ -210,7 +211,7 @@ class FlowContainer extends Component {
         if (!selectedElements.length) {
             return
         }
-        let elements = selectedElements.filter((element = element.type !== ELEMENT_TYPE_EVENT))
+        let elements = selectedElements.filter(element => element.type !== ELEMENT_TYPE_EVENT)
         elements.forEach(element => deleteElement(element, graph))
         reset(graph)
         this.props.onDelete(elements)
@@ -218,9 +219,20 @@ class FlowContainer extends Component {
     }
     /**
      * 根据传递的选项数据进行更新
+     * option数据结构
+     * {
+     *      type: OPTION_ELEMENT_CREATE, // 操作类型
+     *      data: {} // 操作数据，当进行图形校验和图形数据获取的时候data是回调函数
+     * }
+     * data数据结构
+     * {
+     *      id: '', // 节点ID，操作图形数据时无ID信息
+     *      field: '', // 字段名称
+     *      value: '' // 字段的新值
+     * }
      * @param {Array|Object} option 选项数据,如果为数组则操作节点
      */
-    update(option) {
+    handle(option, callback) {
         let { graph, selectedElements } = this.state
         if (option instanceof Array) {
             handleElementOptions(option, graph, selectedElements)

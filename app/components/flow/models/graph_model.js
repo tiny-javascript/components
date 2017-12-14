@@ -7,6 +7,7 @@ class GraphModel {
     scale = 1
     status = GRAPH_STATUS_EDIT
     elements = []
+    version = ''
 }
 
 export default GraphModel

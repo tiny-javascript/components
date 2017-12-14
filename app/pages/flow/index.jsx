@@ -25,7 +25,8 @@ import {
     BUTTON_TYPE_AUDIT,
     POSITION_CENTER_VERTICAL,
     POSITION_CENTER_HORIZONTAL,
-    OPTION_GRAPH_VALIDATE
+    OPTION_GRAPH_VALIDATE,
+    OPTION_GRAPH_QUERY
 } from '../../components/flow/common/constants'
 export default class FlowPage extends React.Component {
     state = {
@@ -112,8 +113,26 @@ export default class FlowPage extends React.Component {
     onValidate() {
         this.updateFn({ type: OPTION_GRAPH_VALIDATE })
     }
+    onSave() {
+        this.updateFn({
+            type: OPTION_GRAPH_VALIDATE,
+            data: error => {
+                if (error) {
+                    return
+                }
+                this.updateFn({
+                    type: OPTION_GRAPH_QUERY,
+                    data: graph => {
+                        localStorage.setItem('graph', JSON.stringify(graph))
+                        alert('数据保存成功')
+                    }
+                })
+            }
+        })
+    }
     render() {
         let { id, text, subType, status, buttons } = this.state
+        let graph = localStorage.getItem('graph')
         return (
             <div className="card panel-primary">
                 <div className="card-body">
@@ -146,7 +165,10 @@ export default class FlowPage extends React.Component {
                             校验图形
                         </button>
                     </div>
-                    <Flow onBeforeRender={this.onBeforeRender.bind(this)} onSelect={this.onSelect.bind(this)} />
+                    <button type="button" className="btn btn-sm btn-success pull-right" onClick={this.onSave.bind(this)}>
+                        保存数据
+                    </button>
+                    <Flow data={graph} onBeforeRender={this.onBeforeRender.bind(this)} onSelect={this.onSelect.bind(this)} />
                     <aside>
                         <form>
                             <div className="form-group row">

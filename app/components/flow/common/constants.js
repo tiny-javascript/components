@@ -6,6 +6,7 @@ export const MIN_GAP = 20 // 线与节点的最小间隔
 export const RECT_RADIUS = 3
 export const POINT_RADIUS = 3
 export const BUTTON_LAYER_WIDTH = 30
+export const VERSION = '1.0'
 // 字体
 export const FONT_SIZE = 12
 export const FONT_FAMILY = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
@@ -63,12 +64,13 @@ export const OPTION_ELEMENT_UPDATE = 'element_update'
 export const OPTION_ELEMENT_ALIGN = 'element_align'
 export const OPTION_GRAPH_UPDATE = 'graph_update'
 export const OPTION_GRAPH_VALIDATE = 'graph_validate'
+export const OPTION_GRAPH_QUERY = 'graph_query'
 // 按钮类型
 export const BUTTON_TYPE_REDO = 11 // 重做按钮
 export const BUTTON_TYPE_SKIP = 12 // 跳过按钮
 export const BUTTON_TYPE_ABORT = 13 // 中断按钮
 export const BUTTON_TYPE_AUDIT = 14 // 审核按钮
 export const BUTTON_TYPE_HANDLE = 15 // 人工按钮
-// 错误类型 
+// 错误类型
 export const ERROR_LOOP_CLOSURE = 'ERROR_LOOP_CLOSURE' // 循环错误
 export const ERROR_LINK_BREAK = 'ERROR_LINK_BREAK' // 连接断开错误

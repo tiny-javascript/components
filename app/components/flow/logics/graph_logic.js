@@ -14,12 +14,17 @@ import {
     ERROR_LINK_BREAK,
     ERROR_LOOP_CLOSURE,
     OPTION_GRAPH_UPDATE,
-    OPTION_GRAPH_VALIDATE
+    OPTION_GRAPH_VALIDATE,
+    ELEMENT_TYPE_CONNECTOR,
+    OPTION_GRAPH_QUERY,
+    VERSION
 } from '../common/constants'
 import { createElement, modifyElement, alignElements } from './element_logic'
 import MoveModel from '../models/move_model'
 import { calcPointFixedAxis } from './point_logic'
 import { createGuideLineNode } from './line_logic'
+import ElementModel from '../models/element_model'
+import AttributeModel from '../models/attribute_model'
 /**
  * 渲染错误节点
  * @param {Array} errorData 错误节点ID集合
@@ -81,6 +86,23 @@ function checkClosureLoop(graph) {
  */
 function checkLinkBreak(graph) {
     let result = { error: false, data: [] }
+    let elements = []
+    graph.elements.forEach(element => {
+        if (element.type == ELEMENT_TYPE_EVENT) {
+            if (element.subType == EVENT_SUBTYPE_START && !element.nexts.length) {
+                elements.push(element.id)
+            }
+            if (element.subType == EVENT_SUBTYPE_OVER && !element.prevs.length) {
+                elements.push(element.id)
+            }
+        } else if (element.type != ELEMENT_TYPE_CONNECTOR) {
+            if (!element.prevs.length || !element.nexts.length) {
+                elements.push(element.id)
+            }
+        }
+    })
+    result.error = !!elements.length
+    result.data = elements
     return result
 }
 /**
@@ -93,9 +115,27 @@ function updateGraph(data, graph) {
         graph.scale = data.value
     }
 }
-
-// --------------------------------------------------下面是对外访问的函数-------------------------------------------------- //
-
+/**
+ * 校验图形信息
+ * @param {Object} graph 图形数据
+ * @param {Boolean} validateLinkBreak 是否进行断链校验
+ */
+function validateGraph(graph, validateLinkBreak) {
+    if (validateLinkBreak) {
+        let linkBreakResult = checkLinkBreak(graph)
+        if (linkBreakResult.error) {
+            renderErrorElements(linkBreakResult.data, graph)
+            return ERROR_LINK_BREAK
+        }
+    }
+    let loopClosureResult = checkClosureLoop(graph)
+    if (loopClosureResult.error) {
+        let start = loopClosureResult.data.indexOf(loopClosureResult.data[loopClosureResult.data.length - 1])
+        renderErrorElements(loopClosureResult.data.slice(start), graph)
+        return ERROR_LOOP_CLOSURE
+    }
+    return ''
+}
 /**
  * 根据事件对象和类名查询节点
  * @param {Event} evt 鼠标事件
@@ -114,28 +154,76 @@ function queryNodeByEventWithClassName(evt, className) {
         return classes && classes.split(' ').indexOf(className) !== -1 ? curr : null
     }, null)
 }
-
 /**
- * 解析图形数据
- * @param {String} data JSON数据
- * @param {String} height 图形高度
- * @param {String} startText 开始文本
- * @param {String} overText 结算文本
+ * 格式化图形数据
+ * @param {Object} graph 图形数据
  */
-function parseGraphByJSONData(data, height, startText, overText) {
-    let graph = new GraphModel()
-    let startElement, overElement
-    graph.height = height
-    // 如果没有解析数据，需要新增开始和结束节点
-    if (!data) {
-        startElement = createElement(ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_START, [graph.height])
-        overElement = createElement(ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_OVER, [graph.height])
-        graph.elements.push(startElement, overElement)
-    }
-    startElement.attribute.text = startText
-    overElement.attribute.text = overText
+function formatGraphData(graph) {
+    graph = JSON.parse(JSON.stringify(graph))
+    graph.scale = 1
+    graph.status = ''
+    graph.elements.forEach(element => {
+        element.status = ''
+        element.buttons = []
+    })
+    graph.version = VERSION
     return graph
 }
+/**
+ * 解析图形数据
+ * @param {String} data 图形数据JSON格式
+ */
+function parseGraphData(data) {
+    let graph = new GraphModel()
+    try {
+        data = JSON.parse(data)
+        if (data.version == VERSION) {
+            graph = parseCurrentVersion(data)
+        } else {
+            graph = parsePreviousVersion(data)
+        }
+    } catch (error) {}
+    return graph
+}
+/**
+ * 解析当前版本
+ * @param {Object} data 图形数据
+ */
+function parseCurrentVersion(data) {
+    let graph = new GraphModel()
+    graph.x = data.x
+    graph.y = data.y
+    graph.height = data.height
+    graph.scale = 1
+    graph.elements = data.elements.map(item => {
+        let element = new ElementModel()
+        let attribute = new AttributeModel()
+        attribute.x = item.attribute.x
+        attribute.y = item.attribute.y
+        attribute.width = item.attribute.width
+        attribute.height = item.attribute.height
+        attribute.text = item.attribute.text
+        attribute.lineBreak = item.attribute.lineBreak
+        element.id = item.id
+        element.type = item.type
+        element.subType = item.subType
+        element.prevs = item.prevs
+        element.nexts = item.nexts
+        element.connectorPoints = item.connectorPoints
+        element.attribute = attribute
+        return element
+    })
+    return graph
+}
+/**
+ * 解析以前版本
+ * @param {Object} data 图形数据
+ */
+function parsePreviousVersion(data) {
+    let graph = new GraphModel()
+    return graph
+}
+// --------------------------------------------------下面是对外访问的函数-------------------------------------------------- //
 
 /**
  * 根据事件对象获取节点ID
@@ -145,7 +233,6 @@ function getElementId(evt) {
     let node = queryNodeByEventWithClassName(evt, 'element')
     return node ? node.getAttribute('id') : ''
 }
-
 /**
  * 根据ID获取节点数据
  * @param {String} id 节点ID
@@ -154,7 +241,6 @@ function getElementId(evt) {
 function getElementById(id, graph) {
     return graph.elements.find(item => item.id == id)
 }
-
 /**
  * 根据事件获取节点
  * @param {Object} evt 鼠标事件对象
@@ -163,7 +249,6 @@ function getElementById(id, graph) {
 function getElementByEvent(evt, graph) {
     return getElementById(getElementId(evt), graph)
 }
-
 /**
  * 处理节点选项数据
  * @param {Array} options 选项数据
@@ -202,35 +287,39 @@ function handleGraphOption(option, graph) {
             break
         case OPTION_GRAPH_VALIDATE:
             let errorType = validateGraph(graph, true)
-            if (errorType) {
-                data && data(errorType)
-            }
+            data && data(errorType)
+            break
+        case OPTION_GRAPH_QUERY:
+            let fmtGraph = formatGraphData(graph)
+            data && data(fmtGraph)
             break
     }
 }
-
 /**
- * 校验图形信息
- * @param {Object} graph 图形数据
- * @param {Boolean} validateLinkBreak 是否进行断链校验
+ * 解析图形数据
+ * @param {String} data JSON数据
+ * @param {String} height 图形高度
+ * @param {String} startText 开始文本
+ * @param {String} overText 结算文本
  */
-function validateGraph(graph, validateLinkBreak) {
-    if (validateLinkBreak) {
-        let linkBreakResult = checkLinkBreak(graph)
-        if (linkBreakResult.error) {
-            renderErrorElements(linkBreakResult.data, graph)
-            return ERROR_LINK_BREAK
-        }
+function parseGraphByJSONData(data, height, startText, overText) {
+    let graph = new GraphModel()
+    let startElement, overElement
+    graph.height = height
+    // 如果没有解析数据，需要新增开始和结束节点
+    if (!data) {
+        startElement = createElement(ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_START, [graph.height])
+        overElement = createElement(ELEMENT_TYPE_EVENT, EVENT_SUBTYPE_OVER, [graph.height])
+        graph.elements.push(startElement, overElement)
+    } else {
+        graph = parseGraphData(data)
+        startElement = getElementById('start', graph)
+        overElement = getElementById('over', graph)
     }
-    let loopClosureResult = checkClosureLoop(graph)
-    if (loopClosureResult.error) {
-        let start = loopClosureResult.data.indexOf(loopClosureResult.data[loopClosureResult.data.length - 1])
-        renderErrorElements(loopClosureResult.data.slice(start), graph)
-        return ERROR_LOOP_CLOSURE
-    }
-    return ''
+    startElement.attribute.text = startText
+    overElement.attribute.text = overText
+    return graph
 }
-
 /**
  * 创建移动数据模型
  * @param {Object} evt 鼠标事件
@@ -308,6 +397,10 @@ function zoom(evt, graph) {
     }
 }
 
+/**
+ * 重置图形数据
+ * @param {Object} graph 图形数据
+ */
 function reset(graph) {
     graph.elements.forEach(element => (element.status = ''))
 }
